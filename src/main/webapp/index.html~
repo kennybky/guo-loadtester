@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Request and Response GUI</title>
+
+<!---------------------------------- CSS -------------------------------------->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link href="Content/footer-distributed-with-address-and-phones.css"
+	rel="stylesheet" />
+<link href="Content/bootstrap.css" rel="stylesheet" />
+<link href="Content/animate.css" rel="stylesheet" />
+<link href="Content/add_styling.css" rel="stylesheet" />
+<link
+	href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+	rel="stylesheet">
+<!---------------------------------- END CSS -------------------------------------->
+
+
+<!---------------------------------- ANGULAR JS -------------------------------------->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+<script src="Scripts/angular_custom_cs594.js"></script>
+<!---------------------------------- END ANGULAR JS -------------------------------------->
+
+</head>
+<body ng-app="webServApp">
+
+	<!-------------------------------------- TOP NAVBAR ------------------------------->
+	<div class="container-fluid">
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+
+					<a class="navbar-brand" href="#"><i class="fa fa-sitemap"></i>&nbsp;&nbsp;&nbsp;Request
+						and Response System</a>
+				</div>
+			</div>
+		</nav>
+	</div>
+	<!-------------------------------------- END TOP NAVBAR ------------------------------->
+	<br />
+	<br />
+	<br />
+	<br />
+
+	<!-------------------------------------- MAIN CONTENT ------------------------------->
+	<div class="animated zoomIn" ng-controller="projectCtrl"
+		class="container-fluid">
+		<div class="row">
+			<div class="col-xs-12 col-md-12 cols" id="main-content">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-offset-4 col-md-4">
+							<ul class="nav nav-tabs">
+								<li><a ng-click="reset()" href="#new-project"
+									data-toggle="tab">New Project</a></li>
+								<li ng-click="getProjects()"><a href="#saved-projects"
+									data-toggle="tab">Open Project</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
+						<div id="myTabContent" class="tab-content">
+
+							<!-------------------------- New Project Tab ------------------>
+							<div class="tab-pane fade active in" id="new-project">
+								<div id="new-project-col" class="well col-md-offset-2 col-md-8">
+									<p class="lead">
+										<i class="fa fa-folder"></i>&nbsp;&nbsp;New Project
+									</p>
+
+									<!-------------------------- Adding Webservices Textbox ------------------>
+									<i><p class="text-info">Optional</p></i>
+									<div class="form-group">
+										<div class="input-group">
+											<div class="input-group-addon">Add a WSDL Webservice</div>
+											<input class="form-control" type="text" name="urlAsmx"
+												ng-model="asmxSelected" id="urlAsmx" /> <span
+												class="input-group-btn"> <input type="button"
+												class="btn btn-primary" ng-click="saveWebservice()"
+												value="Save WS" />
+											</span>
+										</div>
+									</div>
+									<!-------------------------- End Adding Webservices Textbox ------------------>
+
+									<br />
+
+									<!-------------------------- Horizontal Bar ------------------------->
+									<div class="progress progress-striped active">
+										<div class="progress-bar progress-bar-info"
+											style="width: 100%;"></div>
+									</div>
+									<!-------------------------- End Horizontal Bar ------------------------->
+
+									<br /> <i><p class="text-info">Configure the url</p></i>
+									<form action="#">
+										<!-------------------------- Services Textbox ------------------>
+										<div class="form-group">
+											<div class="input-group">
+												<div class="input-group-addon">Select a service</div>
+												<select class="form-control" id="services"
+													ng-model="serviceSelected"
+													ng-options="webservice.name for webservice in webservices"
+													ng-change="getMethods(serviceSelected)"></select>
+											</div>
+										</div>
+										<!-------------------------- End Services Textbox ------------------>
+
+										<!------------------------ Methods Label --------------------->
+										<label id="methodsDivLabel" class="control-label"
+											for="methodsDiv">Methods for {{originalUri}}</label>
+										<!------------------------ End Methods Label --------------------->
+
+										<!-------------------------- Methods Textbox ------------------>
+										<div id="methodsDiv" class="form-group">
+											<div class="input-group">
+												<div class="input-group-addon">Select a method</div>
+<<<<<<< HEAD
+												<select id="txtMethod" class="form-control"
+													ng-model="rowSelected"
+=======
+												<select id="txtMethod" class="form-control" ng-model="rowSelected"
+>>>>>>> 87ef254... Move generic-soap-client class files into project, add license file for attribution, misc
+													ng-options="row.operations for row in wsdl"
+													ng-change="getParams(rowSelected)"></select>
+											</div>
+										</div>
+										<!------------------------ End Methods Textbox --------------------->
+
+										<!------------------------ Parameters Label --------------------->
+										<label id="paramsDivLabel" class="control-label"
+											for="paramsDiv">Parameters for {{originalUriMethod}}</label>
+										<!------------------------ End Parameters Label --------------------->
+
+										<!------------------------ Parameters Textbox ------------------------------>
+										<div id="paramsDiv" ng-repeat="param in paramsArray"
+											class="form-group">
+											<div class="input-group">
+												<div class="input-group-addon">{{:: param }}</div>
+												<input name="param" class="form-control" ng-model="param"
+													ng-focus="param = ''"
+													ng-change="updateParams($index, param)" type="text"
+													value="" />
+											</div>
+										</div>
+										<!-------------------------- End Parameters Textbox ------------------------->
+
+										<br />
+
+										<!-------------------------- Horizontal Bar ------------------------->
+										<div class="progress progress-striped active">
+											<div class="progress-bar progress-bar-info"
+												style="width: 100%;"></div>
+										</div>
+										<!-------------------------- End Horizontal Bar ------------------------->
+
+										<!----------------------- Configure Project Form ------------------------->
+										<br /> <i><p class="text-info">Configure the project</p></i>
+										<!-- Project Configuration -->
+										<div class="form-group">
+											<div class="input-group">
+												<div class="input-group-addon">Project Name</div>
+												<input ng-model="projectName" class="form-control"
+													type="text" id="projectName" />
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="input-group">
+												<div class="input-group-addon">URL</div>
+												<input class="form-control" type="text" name="url"
+													ng-model="uriSelected" id="url" />
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="input-group">
+												<div class="input-group-addon">Total Requests</div>
+												<input class="form-control" type="text" name="requests"
+													placeholder="Must be a number" id="requests" />
+											</div>
+										</div>
+									</form>
+									<button class="btn btn-primary btn-md" id="save">
+										<i class="fa fa-floppy-o"></i>&nbsp;&nbsp;&nbsp;Save
+									</button>
+									<button class="btn btn-info btn-md" id="start">
+										<i class="fa fa-caret-square-o-right"></i>&nbsp;&nbsp;&nbsp;Start
+									</button>
+									<b><i id="status-msg">&nbsp;&nbsp;&nbsp;&nbsp;</i></b> <br />
+									<br />
+									<div id="progressbar-2"></div>
+								</div>
+								<!---------------------------------- End Configure Project Form ----------------------->
+
+								<!----------------------------------------- New Project Fusion Chart ----------------------------------------->
+								<div id="newProjectChartDiv" class="col-md-offset-2 col-md-8">
+									<a id="newProjectChart" class="list-group-item"></a>
+								</div>
+								<!----------------------------------------- End New Project Fusion Chart ----------------------------------------->
+
+							</div>
+
+							<!--------------------------End New Project Tab ----------------------------------------------------------->
+
+							<!-------------------------- Saved Projects Tab ----------------------------------------------------------->
+							<div class="tab-pane fade" id="saved-projects">
+								<div id="saved-projects-col"
+									class="col-md-offset-2 col-md-8 well">
+									<p class="lead">
+										<i class="fa fa-files-o"></i>&nbsp;&nbsp;Saved Load Test
+										Projects
+									</p>
+									<table id="projectTable"
+										class="table table-striped table-hover">
+										<thead>
+											<tr>
+												<th></th>
+												<th><a href=""
+													ng-click="sortField = 'projectname'  ; reverse = !reverse">Project
+												</a></th>
+												<th><a href=""
+													ng-click="sortField = 'requestCount'  ; reverse = !reverse ">Requests
+												</a></th>
+												<th><a href=""
+													ng-click="sortField = 'date'   ; reverse = !reverse">Load
+														Test Date</a></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr
+												ng-repeat="project in projects | orderBy: sortField : reverse">
+												<td><input type="checkbox" ng-model="item.selected"
+													ng-change="change(item, project.projectname)" /></td>
+												<td>{{project.projectname}}</td>
+												<td>{{project.requestCount}}</td>
+												<td>{{project.date}}</td>
+											</tr>
+										</tbody>
+									</table>
+									<div class="row">
+										<div class="col-md-7">
+											<button class="btn btn-danger" ng-click="deleteProjects()">
+												<i class="fa fa-times-circle"></i>&nbsp;&nbsp;&nbsp;Delete
+											</button>
+											<button id="compare" class="btn btn-primary"
+												ng-click="compareOrLoad()">
+												<i class="fa fa-line-chart"></i>&nbsp;&nbsp;&nbsp;Compare
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<div id="savedProjectsChartDiv" class="col-md-8 col-md-offset-2">
+									<a id="savedProjectsChart" class="list-group-item"></a>
+								</div>
+
+							</div>
+							<!-------------------------- End Saved Projects Tab --------------------------------------------->
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-------------------------------------- END MAIN CONTENT ------------------------------->
+
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+
+	<!-------------------------------------- FOOTER ------------------------------->
+	<div class="row">
+		<footer class="footer-distributed" style="margin-bottom: -100px;">
+			<div class="footer-left">
+				<h3>CS594 Systems Engineering</h3>
+				<p class="footer-links">
+					<a href="#">Home</a>·<a href="#">About</a>·<a href="#">Faq</a>·<a
+						href="#">Contact</a>
+				</p>
+				<p class="footer-company-name">California State University, Los
+					Angeles 2016</p>
+			</div>
+			<div class="footer-center">
+				<div>
+					<i class="fa fa-map-marker"></i>
+					<p>
+						<span>CSULA</span> <span>ASCB 132 </span> <span>5151 State
+							University Dr</span> <span>Los Angeles, CA 90032-8530</span>
+					</p>
+				</div>
+				<div>
+					<i class="fa fa-phone"></i>
+					<p>(323) 343-3901</p>
+				</div>
+				<div>
+					<i class="fa fa-envelope"></i>
+					<p>
+						<a href="mailto:support@company.com">support@cs594.com</a>
+					</p>
+				</div>
+			</div>
+			<div class="footer-right">
+				<p class="footer-company-about">
+					<span>About the Team</span> We specialize in Web Systems and
+					Services.
+				</p>
+				<div class="footer-icons">
+					<a href="#"><i class="fa fa-facebook"></i></a> <a href="#"><i
+						class="fa fa-twitter"></i></a> <a href="#"><i
+						class="fa fa-linkedin"></i></a> <a href="#"><i
+						class="fa fa-github"></i></a>
+				</div>
+			</div>
+		</footer>
+	</div>
+	<!-------------------------------------- END FOOTER ------------------------------->
+
+	<!---------------------------------  JAVASCRIPT ------------------------------------>
+	<script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+	<script src="Scripts/fusioncharts.js"></script>
+	<script src="Scripts/fusioncharts.charts.js"></script>
+	<script src="Scripts/fusioncharts-jquery-plugin.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<script src="Scripts/bootstrap.min.js"></script>
+	<script src="Scripts/custom_cs594.js"></script>
+	<!--------------------------------- END JAVASCRIPT ------------------------------ -->
+
+</body>
+</html>

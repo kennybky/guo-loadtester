@@ -1,0 +1,411 @@
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <action-message ng-show="vm.projectAction.message" action-info="vm.projectAction"></action-message>
+        <md-content>
+            <md-tabs md-selected="1" flexc class="md-primary" md-dynamic-height="" md-border-bottom="">
+                <md-tab label="Scheduled Projects">
+                    <md-content class="md-padding">
+                        <div ng-if="vm.dataFetched">
+                            <div ng-show="vm.scheduledProjects.length !== 0"
+                                 class="col-md-12">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-folder-open-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Scheduled
+                                            Projects</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table text-center table-striped table-bordered table-hover">
+                                            <thead>
+                                            <tr class="success">
+                                                <th><input class="checkbox" type="checkbox" ng-model="vm.allSelected"
+                                                           ng-change="vm.selectAll(vm.scheduledProjects, vm.allSelected, 'scheduled')"/>
+                                                </th>
+                                                <th class="text-center"><a href=""
+                                                                           ng-click="sortField = 'projectname'  ; reverse = !reverse">Project </a>
+                                                </th>
+                                                <th class="text-center"><a href=""
+                                                                           ng-click="sortField = 'url'  ; reverse = !reverse">URL </a>
+                                                </th>
+                                                <th class="text-center"><a href=""
+                                                                           ng-click="sortField = 'dateCreated'   ; reverse = !reverse">
+                                                    Test Date</a></th>
+                                                <th>Status</th>
+                                                <th></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr ng-repeat="project in vm.scheduledProjects | orderBy: sortField : reverse">
+                                                <td>
+                                                    <input class="checkbox" type="checkbox" ng-model="project.selected"
+                                                           ng-change="vm.selected(vm.loadProjects, 'scheduled')"/>
+                                                </td>
+                                                <td>{{project.projectname}}</td>
+                                                <td class="serviceUrl">{{project.uri}}</td>
+                                                <td>{{project.dateCreated}}</td>
+                                                <td>
+                                                    <div ng-if="!project.inProgress">Finished.</div>
+                                                    <div ng-if="project.inProgress" class="ui-helper-clearfix">
+                                                        <div class="pull-left">
+                                                            <div class="ball"></div>
+                                                            <div class="ball1"></div>
+                                                            <p>Running every {{project.scheduleInterval}} ms.</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div layout layout-xs="column">
+                                                        <button ng-if="project.inProgress" flex
+                                                                class="btn-spacer btn btn-sm btn-warning"
+                                                                ng-click="vm.stopProject(project)">
+                                                            <i class="fa fa-times-circle"></i>&nbsp;&nbsp;Stop
+                                                        </button>
+                                                        <button flex ng-click="vm.selectProjectForAvail(project)"
+                                                                class="btn-spacer btn btn-sm btn-primary"
+                                                                data-toggle="modal" data-target="#availSettings">
+                                                            </i><i class="fa fa-history" aria-hidden="true"></i>&nbsp;&nbsp;Availability
+                                                        </button>
+                                                        <button flex ng-click="vm.getReliability(project)"
+                                                                class="btn-spacer btn btn-sm btn-info"
+                                                                data-toggle="modal" data-target="#reliability">
+                                                            </i><i class="fa fa-heartbeat" aria-hidden="true"></i>&nbsp;&nbsp;Reliability
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="row">
+                                            <div class="col-md-7">
+                                                <button class="btn btn-danger"
+                                                        ng-click="vm.deleteProjects(vm.scheduledProjects)">
+                                                    <i class="fa fa-times-circle"></i>&nbsp;&nbsp;&nbsp;Delete
+                                                </button>
+                                                <button class="btn btn-info" ng-click="vm.retest(vm.scheduledProjects)">
+                                                    <i class="fa fa-repeat"></i>&nbsp;&nbsp;&nbsp;Re-test
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="vm.scheduledProjects.length === 0" class="col-md-12">
+                                <h1 class="text-danger">Oops! You don't have any scheduled projects.</h1>
+                            </div>
+                        </div>
+                    </md-content>
+                </md-tab>
+                <md-tab label="Test Projects">
+                    <md-content class="md-padding">
+                        <div ng-if="vm.dataFetched">
+                            <div ng-show="vm.loadProjects.length !== 0" class="col-md-12"
+                                 id="saved-projects">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-folder-open-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Test
+                                            Projects</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table id="projectTable"
+                                               class="table text-center table-striped table-bordered table-hover">
+                                            <thead>
+                                            <tr class="success">
+                                                <th><input class="checkbox" type="checkbox" ng-model="vm.allSelected"
+                                                           ng-change="vm.selectAll(vm.loadProjects, vm.allSelected, 'load')"/>
+                                                </th>
+                                                <th class="text-center"><a href=""
+                                                                           ng-click="sortField = 'projectname'  ; reverse = !reverse">Project </a>
+                                                </th>
+                                                <th class="text-center"><a href=""
+                                                                           ng-click="sortField = 'url'  ; reverse = !reverse">URL </a>
+                                                </th>
+                                                <th class="text-center"><a href=""
+                                                                           ng-click="sortField = 'testType'  ; reverse = !reverse ">Test
+                                                    Type </a>
+                                                </th>
+                                                <th class="text-center"><a href=""
+                                                                           ng-click="sortField = 'dateCreated'   ; reverse = !reverse">Load
+                                                    Test Date</a></th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr ng-repeat="project in vm.loadProjects | orderBy: sortField : reverse">
+                                                <td>
+                                                    <input class="checkbox" type="checkbox" ng-model="project.selected"
+                                                           ng-change="vm.selected(vm.loadProjects, 'load')"/>
+                                                </td>
+                                                <td>{{project.projectname}}</td>
+                                                <td class="serviceUrl">{{project.uri}}</td>
+                                                <td>{{project.testType}}<p ng-if="project.testType === 'scalability'">,
+                                                    {{project.distribution}}</p></td>
+                                                <td>{{project.dateCreated}}</td>
+                                                <td>
+                                                    <div ng-if="!project.inProgress">Finished.</div>
+                                                    <div ng-if="project.inProgress" class="ui-helper-clearfix">
+                                                        <div class="ball"></div>
+                                                        <div class="ball1"></div>
+                                                        <button class="btn-spacer btn btn-sm btn-warning"
+                                                                ng-click="vm.stopProject(project)">
+                                                            <i class="fa fa-times-circle"></i>&nbsp;&nbsp;Stop
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="row">
+                                            <div class="col-md-7">
+                                                <button class="btn btn-danger"
+                                                        ng-click="vm.deleteProjects(vm.loadProjects)">
+                                                    <i class="fa fa-times-circle"></i>&nbsp;&nbsp;&nbsp;Delete
+                                                </button>
+                                                <button ng-show="vm.act === 'Load'" class="btn btn-primary"
+                                                        ng-click="vm.load()">
+                                                    <i class="fa fa-line-chart"></i>&nbsp;&nbsp;&nbsp;Load
+                                                </button>
+                                                <button ng-show="vm.act === 'Compare'" class="btn btn-primary"
+                                                        ng-click="vm.compare()">
+                                                    <i class="fa fa-line-chart"></i>&nbsp;&nbsp;&nbsp;Compare
+                                                </button>
+                                                <button class="btn btn-info" ng-click="vm.retest(vm.loadProjects)">
+                                                    <i class="fa fa-repeat"></i>&nbsp;&nbsp;&nbsp;Re-test
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <b><i id="saved-projects-msg">&nbsp;&nbsp;&nbsp;&nbsp;</i></b>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="vm.loadProjects.length === 0" class="col-md-12 ng-hide">
+                                <h1 class="text-danger">Oops! You don't have load projects.</h1>
+                            </div>
+                        </div>
+                        <div ng-show="vm.showLoadingBall" class="ng-hide">
+                            <div class="ball"></div>
+                            <div class="ball1"></div>
+                        </div>
+                        <div id="chart-section">
+                            <!-- LOAD PERFORMANCE CHART HERE -->
+                            <div ng-show="vm.projectLoaded.testType === 'performance' "
+                                 class="col-md-12 ng-hide sub-cont">
+                                <div ng-show="vm.projectLoaded.testType === 'performance' && vm.projectLoaded.inProgress"
+                                     class="ng-hide panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoaded.projectname}}
+                                            Real Time Performance Monitor</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-9">
+                                                <div id="performance-monitor-div"></div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div id="performance-gauge-div"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoaded.projectname}}
+                                            Performance Over Time</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- LOAD CAPACITY / SCALABILITY CHART HERE -->
+                            <div ng-show="vm.projectLoaded.testType === 'capacity' || vm.projectLoaded.testType === 'scalability'"
+                                 class="col-md-12 ng-hide sub-cont">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoaded.projectname}}
+                                            Requests</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <canvas ng-show="vm.requestsGraphData" class="chart-bar"
+                                                chart-data="vm.requestsGraphData"
+                                                chart-labels="vm.requestsGraphLabels"
+                                                chart-options="vm.requestsGraphOptions"
+                                                chart-dataset-override="vm.graphOverride">
+                                        </canvas>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoaded.projectname}}
+                                            Success Scalability</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <canvas ng-show="vm.successScalabilityData" class="chart-bar"
+                                                chart-data="vm.successScalabilityData"
+                                                chart-labels="vm.successScalabilityLabels"
+                                                chart-options="vm.successScalabilityOptions"
+                                                chart-dataset-override="vm.graphOverride"></canvas>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoaded.projectname}}
+                                            Performance Scalability</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <canvas ng-show="vm.performanceScalabilityData" class="chart-bar"
+                                                chart-data="vm.performanceScalabilityData"
+                                                chart-labels="vm.performanceScalabilityLabels"
+                                                chart-options="vm.performanceScalabilityOptions"
+                                                chart-dataset-override="vm.graphOverride"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-if="vm.compareChartsLoaded && !vm.chartsLoaded"
+                             class="col-md-12 sub-cont">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;Compare
+                                        Load
+                                        Results</h3>
+                                </div>
+                                <div ng-hide="compareResultsTable" class="panel-body ng-hide">
+                                    <table class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Project</th>
+                                            <th>Max Concurrent Users</th>
+                                            <th>Average Response Time</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr ng-repeat="x in vm.compareProjectsResults">
+                                            <td>{{x.projectName}}</td>
+                                            <td>{{x.maxConnectionCt}}</td>
+                                            <td>{{x.avgRspTime}} ms</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <md-content flex>
+                                <md-tabs flex-offset="15" flex="70" class="md-primary" md-dynamic-height=""
+                                         md-border-bottom="">
+                                    <md-tab label="Output">
+                                        <md-content class="md-padding">
+                                            <h6 class="md-headline">Output</h6>
+                                            <a id="compareProjectsChart" class="animated fadeIn list-group-item"></a>
+                                        </md-content>
+                                    </md-tab>
+                                    <md-tab label="Averages">
+                                        <md-content class="md-padding">
+                                            <h6 class="md-headline">Averages</h6>
+                                            <a id="avgProjectsChart" class="animated fadeIn list-group-item"></a>
+                                        </md-content>
+                                    </md-tab>
+                                    <md-tab label="Minimums">
+                                        <md-content class="md-padding">
+                                            <h6 class="md-headline">Minimums</h6>
+                                            <a id="minProjectsChart" class="animated fadeIn list-group-item"></a>
+                                        </md-content>
+                                    </md-tab>
+                                    <md-tab label="Maximums">
+                                        <md-content class="md-padding">
+                                            <h6 class="md-headline">Maximums</h6>
+                                            <a id="maxProjectsChart" class="animated fadeIn list-group-item"></a>
+                                        </md-content>
+                                    </md-tab>
+                                    <md-tab label="Capacity">
+                                        <md-content class="md-padding">
+                                            <h6 class="md-headline">Capacity</h6>
+                                            <a id="capacityProjectsChart" class="animated fadeIn list-group-item"></a>
+                                        </md-content>
+                                    </md-tab>
+                                    <md-tab label="Reliability">
+                                        <md-content class="md-padding">
+                                            <h6 class="md-headline">Reliability</h6>
+                                            <i>Lusser’s equation</i>: <code>R = e^[-(l*t)]</code>, where l = failure
+                                            rate =
+                                            (# of failedRequests /
+                                            test testDuration (s) ), and t = 1 second</i>
+                                            <a id="reliabilityProjectsChart"
+                                               class="animated fadeIn list-group-item"></a>
+                                        </md-content>
+                                    </md-tab>
+                                </md-tabs>
+                            </md-content>
+                        </div>
+                    </md-content>
+                </md-tab>
+            </md-tabs>
+        </md-content>
+    </div>
+</div>
+
+<div id="availSettings" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title url">Availability for {{vm.projectAvailability.uri}}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            Mode
+                        </div>
+                        <select class="form-control"
+                                ng-model="vm.availMode"
+                                ng-options="mode.name for mode in vm.modes"
+                                ng-change="vm.getDatePicker(vm.availMode)"></select>
+                    </div>
+                </div>
+                <div layout="row" layout-align="space-around center">
+                    <div ng-show="vm.availMode" uib-datepicker ng-model="vm.availDate"
+                         datepicker-options="vm.options"></div>
+                    <action-message ng-show="vm.datePickerMsg.message" action-info="vm.datePickerMsg"></action-message>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ng-click="vm.clearAvailability()" class="btn btn-default" data-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" ng-click="vm.getAvailability(vm.availMode.name, vm.availDate)"
+                        class="btn btn-primary">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<div id="real-time-chart">FusionCharts will render here</div>-->
+
+<div id="reliability" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title url">Reliability for {{vm.projectReliability.uri}}</h4>
+            </div>
+            <div class="modal-body">
+                <div layout="row" layout-align="space-around center">
+                    <action-message ng-show="vm.reliabilityAction.message"
+                                    action-info="vm.reliabilityAction"></action-message>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

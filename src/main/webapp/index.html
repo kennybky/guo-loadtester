@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+<head>
+    <title>DIRECT STEM - Load Tester</title>
+
+    <!---------------------------------- CSS -------------------------------------->
+    <link href="assets/css/circle-anim.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="assets/css/footer-distributed-with-address-and-phones.css"
+          rel="stylesheet"/>
+    <link href="assets/css/bootstrap.css" rel="stylesheet"/>
+    <link href="assets/css/animate.css" rel="stylesheet"/>
+    <link href="assets/css/add_styling.css" rel="stylesheet"/>
+    <link href="assets/css/angular-wizard.min.css" rel="stylesheet"/>
+    <!---------------------------------- END CSS -------------------------------------->
+</head>
+<body>
+<div class="container">
+    <div id="banner-div">
+        <a href="http://www.calstatela.edu/faculty/jiang-guo" target="_blank" >
+            <img id="logo-img" src="assets/img/Jiang_Guo_Group_Header.jpg"></a>
+    </div>
+    <div id="top-navbar" class="navbar navbar-default">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><i class="fa fa-sitemap"></i>&nbsp;&nbsp;&nbsp;QoS Suite of Cloud Software Services</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="#/services"><i class="fa fa-cloud"
+                                            aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Webservices</a>
+                </li>
+                <li>
+                    <a href="#/new-project"><i class="fa fa-plus-square-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;New
+                        Project</a>
+                </li>
+                <li>
+                    <a href="#/existing-projects"><i class="fa fa-folder-open-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Existing
+                        Projects</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-------------------------------------- END TOP NAVBAR ------------------------------->
+
+    <!-------------------------------------- MAIN CONTENT ------------------------------->
+    <div id="main-div" class="container" ng-view></div>
+    <!-------------------------------------- FOOTER ------------------------------->
+    <div class="row">
+        <footer class="footer-distributed">
+            <div class="footer-left">
+                <h3>QoS Suite of Cloud Software Services</h3>
+
+                <p class="footer-links">
+                    <a href="#">Home</a> &bull; <a href="#">About</a> &bull; <a href="#">Faq</a> &bull; <a
+                        href="#">Contact</a>
+                </p>
+
+                <p class="footer-company-name">
+                    California State University, Los
+                    Angeles 2016
+                </p>
+                <p class="footer-company-name">
+                    <b>Dr. Jiang Guo Research Group</b>
+                </p>
+            </div>
+            <div class="footer-center">
+                <div>
+                    <i class="fa fa-map-marker"></i>
+
+                    <p>
+                        <span>CSULA</span><span></span><span>5151 State
+								University Dr</span>
+                        <span>E&T A-315</span>
+                        <span>Los Angeles, CA 90032-8530</span>
+                    </p>
+                </div>
+                <div>
+                    <i class="fa fa-phone"></i>
+
+                    <p>
+                        (323) 343-6674
+                    </p>
+                </div>
+                <div>
+                    <i class="fa fa-envelope"></i>
+
+                    <p>
+                        <a href="mailto:jguo@calstatela.edu">jguo@calstatela.edu</a>
+                    </p>
+                </div>
+            </div>
+            <div class="footer-right">
+                <p class="footer-company-about">
+                    <span>James Sunthonlap</span>
+                    <span>Nelson Maltez</span>
+                    <span>Dr. Jiang Guo</span>
+                    We specialize in Web Systems
+                </p>
+
+                <div class="footer-icons">
+                    <a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i
+                        class="fa fa-twitter"></i></a><a href="#"><i
+                        class="fa fa-linkedin"></i></a><a href="#"><i
+                        class="fa fa-github"></i></a>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+<!-------------------------------------- END FOOTER ------------------------------->
+
+<!---------------------------------- ANGULAR JS -------------------------------------->
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="assets/js/libs/angular/angular.min.js"></script>
+<script src="assets/js/libs/angular/angular-wizard.min.js"></script>
+<script src="assets/js/libs/angular/angular-animate.min.js"></script>
+<script src="assets/js/libs/angular/angular-aria.min.js"></script>
+<script src="assets/js/libs/angular/angular-messages.min.js"></script>
+<script src="assets/js/libs/angular/angular-material.min.js"></script>
+<script src="assets/js/libs/angular/ui-bootstrap-tpls-2.1.4.min.js"></script>
+<script src="assets/js/libs/angular/angular-route.js"></script>
+<!---------------------------------- END ANGULAR JS -------------------------------------->
+
+<script src="assets/js/libs/jquery/jquery-2.2.3.min.js"></script>
+<script src="assets/js/libs/charts/fusioncharts.js"></script>
+<script src="assets/js/libs/charts/fusioncharts.charts.js"></script>
+<script src="assets/js/libs/charts/fusioncharts-jquery-plugin.js"></script>
+<script src="assets/js/libs/charts/angular-fusioncharts.min.js"></script>
+<script src="assets/js/libs/charts/Chart.min.js"></script>
+<script src="assets/js/libs/charts/angular-chart.min.js"></script>
+<script src="assets/js/libs/bootstrap-min.js"></script>
+
+<!----------------------- Module, Config, and Routes  ----------------------->
+<script src="app.module.js"></script>
+<script src="config/angular-material.config.js"></script>
+<script src="config/chart-js.config.js"></script>
+<script src="app.route.js"></script>
+
+<!----------------------- Services  ----------------------->
+<script src="services/charts/chartData.service.js"></script>
+<script src="services/charts/chartLoader.service.js"></script>
+<script src="services/charts/chartOptions.service.js"></script>
+<script src="services/charts/chartTracker.service.js"></script>
+
+<script src="services/test/retester.js"></script>
+<script src="services/test/tester.service.js"></script>
+
+<script src="services/projectData.service.js"></script>
+<script src="services/realTimePerformance.service.js"></script>
+<script src="services/statusPromises.service.js"></script>
+<script src="services/styler.service.js"></script>
+<script src="services/tableItems.service.js"></script>
+<script src="services/urlBuilder.service.js"></script>
+<script src="services/webServices.service.js"></script>
+<script src="services/wizardProject.service.js"></script>
+
+<!----------------------- Controllers  ----------------------->
+<script src="existing-project/existing-project.controller.js"></script>
+<script src="new-project/new-project.controller.js"></script>
+<script src="web-services/web-services.controller.js"></script>
+
+<!----------------------- Directives  ----------------------->
+<script src="directives/action-message.directive.js"></script>
+
+</body>
+</html>

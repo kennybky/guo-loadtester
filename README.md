@@ -1,0 +1,2 @@
+- Running the sample client: `mvn exec:java -Dexec.mainClass=edu.csula.cs594.client.HttpClient`
+- WADL: http://localhost:8088/client/v1/application.wadl

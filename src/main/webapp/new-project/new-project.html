@@ -1,0 +1,433 @@
+<div class="animated fadeIn row">
+    <div class="col-md-offset-2 col-md-8"
+         id="new-project">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <p class="panel-title">
+                    <i class="fa fa-folder"></i>&nbsp;&nbsp;&nbsp;New Project
+                </p>
+            </div>
+            <div class="panel-body">
+                <wizard on-finish="vm.scrollToCharts()">
+                    <wz-step wz-title="Personalize" canexit="vm.nameValidation">
+                        <h1>Project Personalization</h1>
+                        <p>Enter a name for this project.</p>
+                        <form name="nameForm">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Project Name
+                                    </div>
+                                    <input name="name" ng-model="vm.validation.name"
+                                           placeholder="Project name must not be taken"
+                                           class="form-control" type="text" required/>
+                                </div>
+                            </div>
+                            <div ng-messages="nameForm.name.$error" style="color:red" role="alert">
+                                <div ng-message="required">You must specify a project name.</div>
+                            </div>
+                        </form>
+                        <!--<div>-->
+                            <!--<p class="animated fadeIn text-danger" ng-show="vm.nameValidMsg">{{vm.nameValidMsg}}</p>-->
+                        <!--</div>-->
+                        <action-message ng-show="vm.validateName.message" action-info="vm.validateName"></action-message>
+                        <input class="btn btn-primary" type="submit" wz-next
+                               value="Continue"/>
+                    </wz-step>
+                    <wz-step wz-title="Service Configuration" canexit="vm.serviceConfigValidation">
+                        <h1>Service Configuration</h1>
+                        <p>How would you like to select your test URL?</p>
+                        <div class="form-group">
+                            <div class="input-group">
+
+                                <select class="form-control"
+                                        ng-model="vm.urlSelectType"
+                                        ng-change="vm.resetConfiguredUrl()"
+                                        ng-options="type for type in ['Url Builder', 'Saved Test Urls']"></select>
+                            </div>
+                        </div>
+                        <form ng-show="vm.urlSelectType === 'Url Builder'" class="ng-hide" action="#">
+                            <div class="form-group">
+                                <div class="input-group">
+
+                                    <!-------------------------- Services Textbox ------------------>
+                                    <div class="input-group-addon">
+                                        Select a service
+                                    </div>
+                                    <select class="form-control" id="services"
+                                            ng-model="vm.serviceName"
+                                            ng-options="name for name in vm.names"
+                                            ng-change="vm.getMethods(vm.serviceName)"></select>
+                                </div>
+                            </div>
+
+                            <!-------------------------- Methods Textbox ------------------>
+                            <div ng-show="vm.methods" class="ng-hide form-group">
+                                <label id="methodsDivLabel" class="control-label"
+                                       for="methodsDiv">Methods for {{vm.baseUrl}}</label>
+                                <div id="methodsDiv" class="input-group">
+                                    <div class="input-group-addon">
+                                        Select a method
+                                    </div>
+                                    <select id="txtMethod" class="form-control"
+                                            ng-model="methodSelected"
+                                            ng-options="method.method for method in vm.methods track by method.id"
+                                            ng-change="vm.getParams(methodSelected)"></select>
+                                </div>
+                            </div>
+
+                            <!------------------------ End Methods Textbox --------------------->
+
+                            <div ng-show="methodSelected" class="ng-hide">
+                                <!------------------------ Parameters Textbox ------------------------------>
+                                <p ng-show="vm.params.length === 0" class="text-info
+                                ">There are no parameters required for {{vm.baseMethodUrl}}.</p>
+                                <div ng-show="vm.params.length !== 0" class="form-group ng-hide">
+                                    <label id="paramsDivLabel" class="control-label"
+                                           for="paramsDiv">Parameters for {{vm.baseMethodUrl}} </label>
+                                    <div ng-repeat="param in vm.params track by $index">
+                                        <div id="paramsDiv" class="input-group">
+                                            <div class="input-group-addon">
+                                                {{param.key}}
+                                            </div>
+                                            <input name="param" class="form-control" ng-model="param.value"
+                                                   ng-change="vm.updateParams()" type="text"
+                                                   value=""/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-------------------------- End Parameters Textbox ------------------------->
+                        </form>
+                        <div ng-show="vm.urlSelectType === 'Saved Test Urls'" class="ng-hide form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    Saved Urls
+                                </div>
+                                <select class="form-control"
+                                        ng-model="vm.savedUrl"
+                                        ng-options="savedUrl for savedUrl in vm.savedUrls"
+                                        ng-change="vm.project.uri = vm.savedUrl"></select>
+                            </div>
+                        </div>
+                        <form name="serviceForm">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Configured Test Url
+                                    </div>
+                                    <input name="urlValue" class="form-control" type="text" name="url"
+                                           placeholder="URL to be configured above"
+                                           ng-model="vm.project.uri" id="url" required/>
+                                    <span class="input-group-btn">
+                                        <button ng-click="vm.saveUrl(vm.project.uri, vm.urlSelectType)" class="btn btn-primary"
+                                                type="button">
+                                            Save
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <action-message ng-show="vm.savedUrlAction.message" action-info="vm.savedUrlAction"></action-message>
+                            <div ng-messages="serviceForm.urlValue.$error" style="color:red" role="alert">
+                                <div ng-message="required">You must specify a url to test.</div>
+                            </div>
+                        </form>
+                        <input class="btn btn-primary" type="submit" wz-next value="Continue"/>
+                        <input class="btn btn-danger" type="submit" wz-previous value="Previous"/>
+                    </wz-step>
+                    <wz-step wz-title="Test Type" canexit="vm.testTypeValidation">
+                        <h1>Test Type</h1>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    Test Type
+                                </div>
+                                <select class="form-control"
+                                        ng-model="vm.project.type"
+                                        ng-options="type for type in vm.testTypes"
+                                        ng-change="vm.initProjectOptions()"></select>
+                            </div>
+                        </div>
+                        <div ng-show="vm.project.type === 'scalability' || vm.project.type ==='capacity'" class="ng-hide">
+                            <div ng-show="vm.project.type === 'scalability'" class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Distribution
+                                    </div>
+                                    <select class="form-control"
+                                            ng-model="vm.project.options.distribution"
+                                            ng-options="distribution for distribution
+                                             in ['Uniform', 'Normal', 'Poisson']"></select>
+                                </div>
+                            </div>
+                            <!-- Number of concurrent users -->
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">Simulated Users</div>
+                                    <input class="form-control" type="text" name="userCount"
+                                           ng-model="vm.project.options.userCount"
+                                           placeholder="Maximum number of simulated users"
+                                           id="userCount"/>
+                                </div>
+                            </div>
+
+                            <!-- Warm-Up Time (seconds) -->
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Warm-Up Time (sec)
+                                    </div>
+                                    <input class="form-control" type="text" name="warmUpTime"
+                                           ng-model="vm.project.options.warmUpTime"
+                                           placeholder="Wait respTime before recording performance"
+                                           id="warmUpTime"/>
+                                </div>
+                            </div>
+
+                            <!-- Test Time (minutes) -->
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Test Duration (sec)
+                                    </div>
+                                    <input class="form-control" type="text" name="testTime"
+                                           ng-model="vm.project.options.testTime"
+                                           placeholder="Duration of performance data to record"
+                                           id="testTime"/>
+                                </div>
+                            </div>
+                            
+                            <!-- Failures permitted (percent) -->
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Failure Threshold (%)
+                                    </div>
+                                    <input class="form-control" type="text" name="failuresPermitted"
+                                           ng-model="vm.project.options.failuresPermitted"
+                                           placeholder="% of web service calls permitted before test stops"
+                                           id="failuresPermitted"/>
+                                </div>
+                            </div>
+
+                            <!-- Step Duration (milliseconds) -->
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Step Duration (ms)
+                                    </div>
+                                    <input class="form-control" type="text" name="stepDuration"
+                                           ng-model="vm.project.options.stepDuration"
+                                           placeholder="Duration for a single step"
+                                           id="stepDuration"/>
+                                </div>
+                            </div>
+
+                            <!-- Number of users to increase for each step -->
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Step Increase Count
+                                    </div>
+                                    <input class="form-control" type="text" name="stepCount"
+                                           ng-model="vm.project.options.stepCount"
+                                           placeholder="User increase amount per step"
+                                           id="stepCount"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Any performance options would go here -->
+                        <div ng-show="vm.project.type === 'performance'"
+                             class="ng-hide">
+                        </div>
+
+                        <div ng-show="vm.project.type === 'reliability' || vm.project.type === 'availability'"
+                             class="ng-hide">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Time Units
+                                    </div>
+                                    <select class="form-control"
+                                            ng-model="vm.project.options.timeUnits"
+                                            ng-options="type for type in ['Seconds', 'Minutes', 'Hours']"></select>
+                                </div>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Interval
+                                    </div>
+                                    <input class="form-control" type="text" name="interval"
+                                           ng-model="vm.project.options.interval"
+                                           placeholder="Tests will run regularly on this interval"
+                                           id="interval"
+                                    />
+                                </div>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        Timeout (ms)
+                                    </div>
+                                    <input class="form-control" type="text" name="timeout" id="timeout"
+                                           ng-model="vm.project.options.timeout"
+                                           placeholder="The max amount of time to wait before a scheduled test times out."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <action-message ng-show="vm.testTypeValidAction.message" action-info="vm.testTypeValidAction"></action-message>
+                        <input class="btn btn-primary" type="submit" wz-next value="Continue"/>
+                        <input class="btn btn-danger" type="submit" wz-previous value="Previous"/>
+                    </wz-step>
+                    <wz-step wz-title="Review & Start Testing">
+                        <h1>View project configuration and start the test.</h1>
+                        <p><strong>Project name</strong>: {{vm.project.name}}</p>
+                        <p><strong>Url</strong>: <a href="{{vm.project.uri}}">{{vm.project.uri}}</a></p>
+                        <p><strong>Test Type</strong>: {{vm.project.type}}</p>
+                        <p><strong>Options for {{vm.project.type}} test:</strong></p>
+                        <ul ng-show="vm.project.type === 'performance'">
+                            <!-- Performance options go here -->
+                            <!--<li># of Requests to Make: {{project.options.requestCount}}</li>-->
+                        </ul>
+                        <ul ng-show="vm.project.type === 'capacity' || vm.project.type === 'scalability'">
+                            <li ng-show="vm.project.type === 'scalability'">
+                                Distribution: {{vm.project.options.distribution}}
+                            </li>
+                            <li>
+                                Initial User Count: {{vm.project.options.userCount}}
+                            </li>
+                            <li>
+                                Warm-up Time: {{vm.project.options.warmUpTime}}
+                            </li>
+                            <li>
+                                Total Test Duration: {{vm.project.options.testTime}}
+                            </li>
+                            <li>
+                                Failures Permitted (%): {{vm.project.options.failuresPermitted}}
+                            </li>
+                            <li>
+                                Step Duration (ms): {{vm.project.options.stepDuration}}
+                            </li>
+                            <li>
+                                Step Increase Count (users): {{vm.project.options.stepCount}}
+                            </li>
+                        </ul>
+                        <ul ng-show="vm.project.type === 'reliability' || vm.project.type === 'availability'">
+                            <li>
+                                Test Interval: {{vm.project.options.interval}}
+                            </li>
+
+                            <li>
+                                Timeout: {{vm.project.options.timeout}}
+                            </li>
+                        </ul>
+                        <div layout="row" style="margin-bottom:10px;">
+                            <div flex="10">
+                                <button ng-if="vm.testStatus"
+                                        class="btn btn-warning btn-md"
+                                        ng-click="vm.stop()">
+                                    <i class="fa fa-times-circle"></i>&nbsp;&nbsp;Stop
+                                </button>
+                                <button ng-if="!vm.testStatus" wz-finish class="btn btn-info btn-md"
+                                        id="start" ng-click="vm.initTest()">
+                                    <i class="fa fa-caret-square-o-right"></i>&nbsp;&nbsp;&nbsp;Start
+                                </button>
+                            </div>
+                            <!--<div flex="90" ng-show="allServiceTestResLoading" class="animated fadeIn ng-hide">-->
+                            <!--&lt;!&ndash;<div class="progress progress-striped active">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<div id="overallTestProgress" class="progress-bar progress-bar-warning"></div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<h5><b>Successful Requests:</b> {{requests}}</h5>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<h5><b>Average Response Time:</b> {{rspTime}} ms</h5>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<b><i id="status-msg">&nbsp;&nbsp;&nbsp;&nbsp;</i></b>&ndash;&gt;-->
+                            <!--</div>-->
+                        </div>
+                        <div ng-if="vm.testStatus" class="ui-helper-clearfix">
+                            <div class="ball"></div>
+                            <div class="ball1"></div>
+                        </div>
+                        <action-message ng-show="vm.initTestAction.message" action-info="vm.initTestAction" wz-reset></action-message>
+                        <input class="btn btn-info" type="submit" wz-reset value="Start another project" ng-click="vm.testStatus = false"/>
+                        <input class="btn btn-primary" ng-disabled="vm.testStatus" type="submit" wz-reset value="Back to first step"/>
+                        <input class="btn btn-danger" ng-disabled="vm.testStatus" type="submit" wz-previous value="Previous"/>
+                    </wz-step>
+                </wizard>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="chartsDiv">
+    <!-- Performance speed gaug && real time histo --->
+    <div ng-show="vm.project.type == 'performance' && vm.RTPERF" class="row ng-hide">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;
+                        Real Time Performance Monitor</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-9"><div id="performance-monitor-div"></div></div>
+                        <div class="col-md-3"><div id="performance-gauge-div"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Some misc message, for example, the total capacity so far during a capacity test -->
+    <div class="row">
+        <h3 ng-show="vm.loadTestMessage" class="col-md-10 col-md-offset-1">{{vm.loadTestMessage}}</h3>
+    </div>
+
+    <div ng-show="vm.project.type === 'capacity' || vm.project.type === 'scalability'" class="row ng-hide">
+        <div ng-show="vm.requestsGraphData" class="ng-hide col-md-5 col-md-offset-1">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoadedName}}
+                        Requests</h3>
+                </div>
+                <div class="panel-body">
+                    <canvas class="chart chart-line"
+                            chart-data="vm.requestsGraphData"
+                            chart-labels="vm.requestsGraphLabels" chart-options="vm.requestsGraphOptions"></canvas>
+                </div>
+            </div>
+        </div>
+        <div ng-show="vm.successScalabilityData" class="col-md-5 ng-hide">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoadedName}}
+                        {{vm.successTitle}}</h3>
+                </div>
+                <div class="panel-body">
+                    <canvas class="chart chart-line"
+                            chart-data="vm.successScalabilityData"
+                            chart-labels="vm.successScalabilityLabels"
+                            chart-options="vm.successScalabilityOptions"
+                            chart-legend="true"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-show="vm.project.type === 'scalability'" class="row ng-hide">
+        <div ng-show="vm.performanceScalabilityData" class="col-md-10 col-md-offset-1 ng-hide">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;{{vm.projectLoadedName}}
+                        Performance Scalability</h3>
+                </div>
+                <div class="panel-body">
+                    <canvas class="chart chart-line"
+                            chart-data="vm.performanceScalabilityData"
+                            chart-labels="vm.performanceScalabilityLabels"
+                            chart-options="vm.performanceScalabilityOptions"
+                            chart-legend="true" chart-series="performanceSeries"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
