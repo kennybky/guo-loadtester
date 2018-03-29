@@ -55,6 +55,25 @@ public class DatabaseClient {
             logger.error("Unable connect the database: ", e);
         }
     }
+    public DatabaseClient(String database, String user, String password) {
+        try {
+            // This will load the MySQL driver, each DB has its own driver
+            Class.forName("com.mysql.jdbc.Driver");
+            // Setup the connection with the DB
+            connect = DriverManager
+                    .getConnection("jdbc:mysql://" + server + "/" + database + "?user=" + user + "&password=" + password);
+            connect.setAutoCommit(true);
+            connect.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            logger.info("Database connection initialized.");
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.error("Unable connect the database: ", e);
+        }
+    }
+    
+    public Connection getConnection() {
+    	return connect;
+    }
 
     public boolean validateProjectName(String projectName) throws SQLException {
         try (PreparedStatement preparedStatement = connect.prepareStatement("select id from projects where projectname = ?")) {
