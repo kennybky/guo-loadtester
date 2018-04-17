@@ -108,6 +108,7 @@
                                         + "&value="
                                         + latestPerformance;
                                 	} else {
+                                        console.log(avgPerf)
                                     strData = "&label=" + label
                                         + "&value="
                                         + latestPerformance + "|" + avgPerf;

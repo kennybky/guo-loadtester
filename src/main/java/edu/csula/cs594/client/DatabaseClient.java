@@ -1,5 +1,6 @@
 package edu.csula.cs594.client;
 
+import edu.csula.cs594.client.dao.model.Project;
 import edu.csula.cs594.client.graph.ScrollLineGraph;
 import edu.csula.cs594.client.graph.dao.AngularChart;
 import edu.csula.cs594.client.dao.ProjectResponse;
@@ -26,6 +27,8 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+
+import edu.csula.cs594.client.results.project.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -431,6 +434,116 @@ public class DatabaseClient {
         }
 
     }
+
+    public GetProjectResult getWebProjects() {
+        String sql = "SELECT * FROM webprojects ORDER BY id;";
+        List<Project> projects = new ArrayList<>();
+        boolean success = false;
+
+        try {
+            PreparedStatement preparedStatement = connect.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                projects.add(toProject(resultSet));
+            }
+
+            success = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new GetProjectResult(projects, success);
+    }
+
+    public CreateProjectResult createWebProject(Project project) {
+        System.out.println("data to push: " + project.getData());
+        int projectId = -1;
+
+        try {
+            String sql = "INSERT INTO webprojects (data) VALUES(?)";
+            PreparedStatement statement;
+            statement = connect.prepareStatement(sql);
+            statement.setString(1, project.getData());
+            int rowCount = statement.executeUpdate();
+
+            sql = "SELECT LAST_INSERT_ID();";
+            statement = connect.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+
+            if(rowCount > 0 && resultSet.next())
+                projectId = resultSet.getInt("LAST_INSERT_ID()");
+            //rowCount = statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("CREATED NEW PROJECT WITH ID: " + projectId);
+        boolean successful = projectId != -1;
+        if(successful)
+            project.setId(projectId);
+        return new CreateProjectResult(projectId, project, successful);
+    }
+
+    public GetProjectByIdResult getProjectById(int id) {
+        try {
+            String sql = "SELECT * FROM webprojects WHERE id = ?";
+            PreparedStatement statement;
+            statement = connect.prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            Project project = null;
+            if(resultSet.next()) {
+
+               project =  new Project(resultSet.getInt("id"), resultSet.getString("data"));
+            }
+
+            return new GetProjectByIdResult(id, project);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public DeleteProjectByIdResult deleteWebProject(int id) {
+        try {
+            String sql = "DELETE  FROM webprojects WHERE id = ?";
+            PreparedStatement statement;
+            statement = connect.prepareStatement(sql);
+            statement.setInt(1, id);
+            int rowcount = statement.executeUpdate();
+            boolean success = rowcount > 0? true : false;
+
+            return new DeleteProjectByIdResult(id, success);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public UpdateProjectResult updateProject(Project project, int id) {
+        System.out.println("data to update: " + project.getData());
+        String sql = "UPDATE webprojects SET data = ? WHERE id = ?";
+        int rowsUpdated = 0;
+        try {
+            PreparedStatement statement = connect.prepareStatement(sql);
+            statement.setString(1, project.getData());
+            statement.setInt(2, id);
+            rowsUpdated = statement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return new UpdateProjectResult(id, project, rowsUpdated > 0);
+    }
+
+    public static Project toProject(ResultSet resultSet) throws SQLException {
+        int id = resultSet.getInt("id");
+        String data = resultSet.getString("data");
+        return new Project(id, data);
+    }
+
+
 
     public List<ProjectResponse> getLoadProjects() throws SQLException {
 
@@ -987,4 +1100,7 @@ public class DatabaseClient {
             // Ignore
         }
     }
+
+
+
 }

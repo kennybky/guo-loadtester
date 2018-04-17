@@ -47,7 +47,7 @@
                         Projects</a>
                 </li>
                 <li>
-                    <a href="#/Web-projects"><i class="fa fa-folder-open-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Web Projects</a>
+                    <a href="#/web-projects"><i class="fa fa-folder-open-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Web Projects</a>
                 </li>
             </ul>
         </div>
@@ -132,6 +132,7 @@
 <script src="assets/js/libs/angular/angular-material.min.js"></script>
 <script src="assets/js/libs/angular/ui-bootstrap-tpls-2.1.4.min.js"></script>
 <script src="assets/js/libs/angular/angular-route.js"></script>
+<!--<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-sanitize.js"></script>-->
 <!---------------------------------- END ANGULAR JS -------------------------------------->
 
 <script src="assets/js/libs/jquery/jquery-2.2.3.min.js"></script>
@@ -149,6 +150,9 @@
 <script src="config/chart-js.config.js"></script>
 <script src="app.route.js"></script>
 
+<!--------------------------models--------------------------->
+<script src="shared/models/webProject.model.js"></script>
+
 <!----------------------- Services  ----------------------->
 <script src="services/charts/chartData.service.js"></script>
 <script src="services/charts/chartLoader.service.js"></script>
@@ -157,6 +161,7 @@
 
 <script src="services/test/retester.js"></script>
 <script src="services/test/tester.service.js"></script>
+<script src="services/test/webtester.service.js"></script>
 
 <script src="services/projectData.service.js"></script>
 <script src="services/realTimePerformance.service.js"></script>
@@ -171,9 +176,13 @@
 <script src="existing-project/existing-project.controller.js"></script>
 <script src="new-project/new-project.controller.js"></script>
 <script src="web-services/web-services.controller.js"></script>
+<script src="web-project/web-project.controller.js"></script>
 
 <!----------------------- Directives  ----------------------->
 <script src="directives/action-message.directive.js"></script>
+
+
+
 
 </body>
 </html>

@@ -20,6 +20,10 @@
                 templateUrl: 'existing-project/existing-project.html',
                 controller: 'ExistingProjectController',
                 controllerAs: 'vm'
+            }).when('/web-projects',{
+            	templateUrl: 'web-project/web-project.html',
+                controller: 'WebProjectController',
+                controllerAs: 'vm'
             })
             .otherwise({
                 redirectTo: '/new-project'
