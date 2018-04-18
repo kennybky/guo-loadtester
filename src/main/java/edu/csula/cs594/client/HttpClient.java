@@ -52,6 +52,14 @@ public class HttpClient implements Closeable {
         return result;
     }
 
+    public Future<Long> MakeAsyncHttpPostCall(RealTimeData realTimeData) throws InterruptedException, ExecutionException, IOException, SQLException {
+        LocalAsyncHandler asyncHandler = new LocalAsyncHandler(testContext, false, realTimeData);
+        Future<Long> request = asyncHttpClient.preparePost(testContext.getUri()).
+                setHeader("Content-Type","application/json").
+                setBody(testContext.getRequestBody()).execute(asyncHandler);
+        return request;
+    }
+
     public void makeHttpCall(RealTimeData realTimeData, boolean async) throws InterruptedException, ExecutionException, IOException, SQLException {
         if (async) {
             makeAsyncHttpCall(realTimeData);

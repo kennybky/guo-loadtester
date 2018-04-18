@@ -1,11 +1,14 @@
 package edu.csula.cs594.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.csula.cs594.client.dao.RealTimeData;
 import edu.csula.cs594.client.dao.CummulativeData;
 import edu.csula.cs594.client.dao.QueueItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,6 +28,18 @@ import javax.ws.rs.core.Context;
 public class TestContext {
 
     private static final Logger logger = LoggerFactory.getLogger(TestContext.class);
+
+    public String getRequestBody() {
+        String jsonContent = "";
+            final ObjectMapper mapper = new ObjectMapper();
+        try {
+            jsonContent = mapper.writeValueAsString(this.getParams());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return jsonContent;
+    }
+
     public enum Type {
         SCHEDULED, PERFORMANCE, CAPACITY
     }
@@ -58,6 +73,7 @@ public class TestContext {
     private final AtomicBoolean running;
     private String finishMessage;
     private boolean retest = false;
+    private Map<String, String> params;
 
     public TestContext(int projectId, String uri, Type testType, DatabaseClient dbClient, ExecutorService consumers) {
         this.projectId = projectId;
@@ -69,9 +85,18 @@ public class TestContext {
         this.finishMessage = "Test finished without errors.";
     }
 
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
+
     /**
      * Start consuming data when responses consume.
      */
+
     public void startConsumer() {
         logger.info("Submitting the consumer to the consumer thread pool.");
         consumers.execute(consumer);

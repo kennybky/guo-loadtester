@@ -3,6 +3,9 @@
         <button class="btn btn-success mb-3" type="button" ng-click="vm.createNewProject()">
             <i class="fa fa-plus-square-o" aria-hidden="true"></i> Create New Project
         </button>
+        <button class="btn btn-success mb-3" type="button" ng-click="vm.createNewProject('upload')">
+            <i class="fa fa-plus-square-o" aria-hidden="true"></i> Create New UploadTest
+        </button>
     </div>
 
     <table class="table table-hover table-bordered">
@@ -19,7 +22,7 @@
         <tr ng-repeat="project in vm.projects track by $index">
             <td class="text-center">{{ project.id }}</td>
             <td class="text-center">{{ project.title }}</td>
-            <td class="text-center">{{ project.parameters }}</td>
+            <td class="text-center">{{ project.service}}</td>
             <td class="text-center">
                 <button class="btn btn-outline-info" data-toggle="modal" data-target="#editClientModal" ng-click="vm.editProject(project.id)">
                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>

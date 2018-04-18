@@ -14,6 +14,7 @@
         var vm = this;
         vm.webtester = webtester;
         vm.createNewProject = createNewProject;
+        vm.uploadTest = uploadTest
         vm.webProject = webProject;
         vm.projects = [];
         vm.current_project = null;
@@ -86,7 +87,15 @@
     function editProject(id){
         vm.current_project = vm.getProject(id);
         console.log(vm.current_project)
-        $('[data-target="#tab1"]').tab('show');
+        if(vm.current_project.service === 'upload') {
+            $('[data-target="#uploadtab"]').tab('show');
+        } else {
+            $('[data-target="#tab1"]').tab('show');
+        }
+
+    }
+
+    function uploadTest(){
 
     }
 
@@ -97,8 +106,9 @@
             }
         }
 
-        function createNewProject() {
+        function createNewProject(service=null) {
             const project = webProject.newProject(generateTempId());
+            project.service = service;
 
             webtester.createProjectDb(project)
                 .then(
@@ -114,6 +124,12 @@
 
             return project;
         }
+
+        function testProject(id) {
+                const project = getProject(id);
+
+        }
+
 
         function generateTempId() {
             return Math.trunc(Math.random() * 999999999) + 1;
