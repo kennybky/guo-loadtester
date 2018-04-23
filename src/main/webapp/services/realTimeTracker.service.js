@@ -1,16 +1,18 @@
 (function() {
     angular
         .module('app')
-        .factory('realTimePerformance', realTimePerformance);
+        .factory('realTimeTracker', realTimeTracker);
 
-    realTimePerformance.$inject = ['statusPromises', 'tester', 'chartTracker', '$interval', '$q'];
+    realTimeTracker.$inject = ['statusPromises', 'tester', 'chartTracker', '$interval', '$q', 'webtester'];
 
-    function realTimePerformance(statusPromises, tester, chartTracker, $interval, $q) {
+    function realTimeTracker(statusPromises, tester, chartTracker, $interval, $q, webtester) {
         var projectId;
+        var project;
 
         var service = {
             setProjectId: setProjectId,
-            startPinging: startPinging
+            startPinging: startPinging,
+            setProject: setProject
         }
 
         return service;
@@ -19,13 +21,24 @@
             projectId = id;
         }
 
+        function setProject(pj){
+            project = pj
+        }
+
         function startPinging() {
             var pingProm = $q.defer();
             google.charts.load('current', {'packages':['gauge']});
             google.charts.setOnLoadCallback(function() {
                 pingPerformanceStatus(pingProm);
             });
-            return pingProm.promise;
+            let pingPromise = pingProm.promise;
+            pingPromise.then((response)=>{
+                statusPromises.clear();
+                console.log(response)
+                webtester.save(project);
+
+            })
+            return pingProm
         }
 
         function pingPerformanceStatus (pingProm) {
@@ -46,7 +59,7 @@
 
             FusionCharts.ready(function () {
                 var performanceChartMon = new FusionCharts({
-                    id: "performanceMonitorChart",
+                    id: "performanceMonitorChart2",
                     type: 'realtimeline',
                     renderAt: 'performance-monitor-div',
                     width: '100%',
@@ -55,7 +68,7 @@
                     dataSource: {
                         "chart": {
                             "caption": "Real-Time Performance",
-                            "subCaption": "Time vs Avg response time(ms)",
+                            "subCaption": `Time vs Avg response time(ms) for Upload size ${project.uploadSize}MB`,
                             "xAxisName": "Time",
                             "yAxisName": "Avg Response Time (ms)",
                             "refreshinterval": "1",
@@ -73,17 +86,17 @@
                             "category": [{}]
                         }],
                         "dataset": [{
-                        	"seriesname": "current",
+                            "seriesname": "current",
                             "showvalues": "1",
                             "color" : "#0546af",
-                        	"data": [{}]
+                            "data": [{}]
                         },
-                        {
-                        "seriesname": "avg",
-                        "showvalues": "1",
-                        "color":"#46af5b",
-                    	"data": [{}]
-                    }
+                            {
+                                "seriesname": "avg",
+                                "showvalues": "1",
+                                "color":"#46af5b",
+                                "data": [{}]
+                            }
                         ]
                     },
                     "events": {
@@ -91,30 +104,31 @@
                             function addLeadingZero(num){
                                 return (num <= 9)? ("0"+num) : num;
                             }
-                            function updateData() {
+                           function updateData() {
                                 // Get reference to the chart using its ID
-                                var chartRef = FusionCharts("performanceMonitorChart"),
-                                // We need to create a querystring format incremental update, containing
-                                // label in hh:mm:ss format
+                                let chartRef = FusionCharts("performanceMonitorChart2"),
+
+                                    // We need to create a querystring format incremental update, containing
+                                    // label in hh:mm:ss format
                                     currDate = new Date(),
                                     label = addLeadingZero(currDate.getHours()) + ":" +
                                         addLeadingZero(currDate.getMinutes()) + ":" +
                                         addLeadingZero(currDate.getSeconds()),
-                                // Build Data String in format &label=...&value=...
+                                    // Build Data String in format &label=...&value=...
                                     strData = "";
-                                	if (avgPerf == -1) {
-                                		console.log(avgPerf)
-                                		strData = "&label=" + label
+
+                                if (avgPerf <=0 || avgPerf == null || avgPerf === undefined) {
+                                    console.log(avgPerf)
+                                    strData = "&label=" + label
                                         + "&value="
                                         + latestPerformance;
-                                	} else {
-                                        console.log(avgPerf)
+                                } else {
+                                    console.log(avgPerf)
                                     strData = "&label=" + label
                                         + "&value="
                                         + latestPerformance + "|" + avgPerf;
-                                	}
+                                }
                                 // Feed it to chart.
-
                                 chartRef.feedData(strData);
                             }
 
@@ -126,6 +140,8 @@
                     }
                 }).render();
                 chartTracker.addFusionChart(performanceChartMon);
+
+
             });
 
 
@@ -136,25 +152,30 @@
 
             chartTracker.addGoogleChart(performanceGauge);
             var gaugePromise = $interval(function() {
-                tester.getPerformanceStatus(projectId).then(function(response) {
-                    if (response.running) {
-                        latestPerformance = response.avgResponseTime;
-                        avgPerf = response.cumAvgResponseTime;
-                        // console.log(response.avgResponseTime);
-                        // console.log(latestPerformance);
-                        if (latestPerformance <= 1) {
-                            options.max = 1
-                        }
-                        else if (latestPerformance >= options.max) {
-                            options.max = latestPerformance * 2;
-                        }
-                        data.setValue(0, 1, latestPerformance);
-                        performanceGauge.draw(data, options);
-                    } else {
-                        pingProm.resolve(response);
-                        statusPromises.clear();
-                    }
-                });
+
+                webtester.start(project.title, project.url, project.method, project.parameters)
+                    .then(function (res) {
+                            let response = res.data;
+                            latestPerformance = response.avgResponseTime;
+                            avgPerf = response.cumAvgResponseTime;
+
+                            //console.log(latestPerformance);
+                            if (latestPerformance <= 1) {
+                                options.max = 1
+                            }
+                            else if (latestPerformance >= options.max) {
+                                options.max = latestPerformance * 2;
+                            }
+                            data.setValue(0, 1, latestPerformance);
+                            performanceGauge.draw(data, options);
+                            //updateData(latestPerformance, avgPerf)
+                            saveData(latestPerformance);
+                        },
+                        (err)=>{
+                            console.log(err)
+                            pingProm.resolve(err);
+                            statusPromises.clear();
+                        });
             }, 500); //check for real time update every 500 ms.
             statusPromises.add(gaugePromise);
 
@@ -171,6 +192,16 @@
             else {
                 window.resize = resizeGauge;
             }
+        }
+
+        function saveData(avg){
+            webtester.saveStats(project, avg).then((res)=>{
+                if(project.cumAvg === 0 || project.cumAvg === undefined || project.cumAvg === null){
+                    project.cumAvg = avg
+                }
+                let cumAvg = project.cumAvg;
+                project.cumAvg = (cumAvg + avg)/2
+            })
         }
     }
 })();

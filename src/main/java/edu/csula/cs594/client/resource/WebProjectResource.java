@@ -3,6 +3,8 @@ package edu.csula.cs594.client.resource;
 import com.google.gson.Gson;
 import edu.csula.cs594.client.CliClient;
 import edu.csula.cs594.client.DatabaseClient;
+import edu.csula.cs594.client.dao.StatusResponse;
+import edu.csula.cs594.client.results.GenericResult;
 import edu.csula.cs594.client.results.project.GetProjectResult;
 import edu.csula.cs594.client.dao.model.Project;
 import edu.csula.cs594.client.results.project.*;
@@ -12,6 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 import java.util.Map;
 
 @Path("/webprojects")
@@ -92,4 +95,37 @@ public class WebProjectResource {
                 .entity(new Gson().toJson(result))
                 .build();
     }
+
+    @POST
+    @Path("/{id}/save")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response saveStat(@PathParam("id") int id, @QueryParam("url") String url, @QueryParam("avg") long avg){
+
+        try {
+            GenericResult i = dbClient.saveStat(id, url, avg);
+            return Response.ok().entity(new Gson().toJson(i)).build();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Response.status(400).entity(new Gson().toJson(e)).build();
+        }
+    }
+
+    @GET
+    @Path("/{id}/graph")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGraphData(@PathParam("id") int id){
+
+        try {
+            StatusResponse response = dbClient.getGraphData(id);
+            return Response.ok().entity(new Gson().toJson(response)).build();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Response.status(400).entity(new Gson().toJson(e)).build();
+        }
+
+
+    }
+
 }

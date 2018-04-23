@@ -37,7 +37,11 @@
                 this.stats = [];
                 this.dbId = null;
                 this.description = null;
-                this.url = null
+                this.url = null;
+                this.method = "GET";
+                this.type = "performance";
+                this.name = `PROJECT_${id}`;
+                this.options = null;
                 this.method = null;
                 this.service = null
                 this.parameters = {};

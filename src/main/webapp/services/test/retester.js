@@ -18,6 +18,7 @@
 
         function setProject(retest) {
             project = retest;
+            console.log(project)
         }
 
         function getProject() {

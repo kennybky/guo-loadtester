@@ -54,12 +54,14 @@ public class TestResource {
     @Path("startScheduledTest")
     @Produces(MediaType.APPLICATION_JSON)
     public Response startScheduledTest(@QueryParam("projectName") String projectName, @QueryParam("uri") String uri,
-                                       @QueryParam("interval") long testInterval, @QueryParam("timeout") long timeout) throws SQLException,
+                                       @QueryParam("interval") long testInterval, @QueryParam("timeout") long timeout,
+                                       @QueryParam("method") String method) throws SQLException,
             InterruptedException, IOException, ExecutionException {
 
         eraseOldProject(projectName);
         int projectId = dbClient.createScheduledRun(projectName, uri, "scheduled", testInterval);
         TestContext testContext = new TestContext(projectId, uri, Type.SCHEDULED, dbClient, consumers);
+        testContext.setMethod(method);
         testContext.setTestInterval(testInterval);
         testContext.setConsumer(new DataConsumer(testContext));
         testContextMap.put(projectId, testContext);
@@ -80,7 +82,8 @@ public class TestResource {
             @QueryParam("testTime") int testTime, // seconds
             @DefaultValue("1000") @QueryParam("stepDuration") int stepDurationMs, // interval duration in milliseconds before increasing users/interval
             @DefaultValue("0") @QueryParam("stepCount") int stepCount, // increase concurrent users by this number for each interval
-            @DefaultValue("0") @QueryParam("failuresPermitted") int failuresPermitted)  {
+            @DefaultValue("0") @QueryParam("failuresPermitted") int failuresPermitted,
+            @QueryParam("method") String method)  {
         
         eraseOldProject(projectName);
         StatusResponse r;
@@ -89,6 +92,7 @@ public class TestResource {
             TestContext testContext = new TestContext(projectId, uri, Type.CAPACITY, dbClient, consumers);
             testContext.setInitialUserCount(userCount);
             testContext.setWarmUpDuration(warmUpTime);
+            testContext.setMethod(method);
             testContext.setTestDuration(testTime);
             testContext.setStepDuration(stepDurationMs);
             testContext.setStepCount(stepCount);
@@ -122,7 +126,8 @@ public class TestResource {
             @QueryParam("testTime") int testTime, // seconds
             @DefaultValue("1000") @QueryParam("stepDuration") int stepDurationMs, // interval duration in milliseconds before increasing users/interval
             @DefaultValue("0") @QueryParam("stepCount") int stepCount,
-            @DefaultValue("0") @QueryParam("failuresPermitted") int failuresPermitted) {        // increase concurrent users by this number for each interval)
+            @DefaultValue("0") @QueryParam("failuresPermitted") int failuresPermitted,
+            @QueryParam("method") String method) {        // increase concurrent users by this number for each interval)
 
         LoadFactory.Type type;
         switch (distribution) {
@@ -150,6 +155,7 @@ public class TestResource {
             testContext.setTestDuration(testTime);
             testContext.setStepDuration(stepDurationMs);
             testContext.setStepCount(stepCount);
+            testContext.setMethod(method);
             testContext.setFailuresPermitted(failuresPermitted);
             testContext.setConsumer(new DataConsumer(testContext));
             testContextMap.put(projectId, testContext);
@@ -167,7 +173,8 @@ public class TestResource {
     @GET
     @Path("startPerformanceTest")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response startPerformanceTest(@QueryParam("projectName") String projectName, @QueryParam("uri") String uri) throws SQLException,
+    public Response startPerformanceTest(@QueryParam("projectName") String projectName, @QueryParam("uri") String uri,
+                                         @QueryParam("method") String method) throws SQLException,
             InterruptedException, IOException, ExecutionException {
         //eraseOldProject(projectName);
         StatusResponse r;
@@ -175,13 +182,14 @@ public class TestResource {
         	int projectId = getProjectId(projectName);// Get if project exists already
         	boolean isretest = false;
         	if (projectId == -1) {
-        		projectId = dbClient.createPerformanceProject(projectName, uri);
+        		projectId = dbClient.createPerformanceProject(projectName, uri, method);
         	} else {
         		isretest = true;
         	}
             TestContext testContext = new TestContext(projectId, uri, Type.PERFORMANCE, dbClient, consumers);
             testContext.setRetest(isretest);
             testContext.setConsumer(new DataConsumer(testContext));
+            testContext.setMethod(method);
             logger.info("test context project id: " + testContext.getProjectId());
             testContextMap.put(projectId, testContext);
             CliClient cli = new CliClient(testContext);

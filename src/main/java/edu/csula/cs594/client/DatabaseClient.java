@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import edu.csula.cs594.client.results.GenericResult;
 import edu.csula.cs594.client.results.project.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -264,12 +265,13 @@ public class DatabaseClient {
     }
 
     // dbClient.createPerformanceProject(uri, projectName, requestCount);
-    public int createPerformanceProject(String projectName, String uri) throws SQLException {
-        String query = "insert into stats.projects (uri, projectname, testType) values (?, ?, ?)";
+    public int createPerformanceProject(String projectName, String uri, String method) throws SQLException {
+        String query = "insert into stats.projects (uri, projectname, testType, method) values (?, ?, ?, ?)";
         try (PreparedStatement pstmt = connect.prepareStatement(query)) {
             pstmt.setString(1, uri);
             pstmt.setString(2, projectName);
             pstmt.setString(3, "performance");
+            pstmt.setString(4, method);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Couldn't create a performance project.", e);
@@ -550,7 +552,7 @@ public class DatabaseClient {
         try (PreparedStatement preparedStatement = connect
                 .prepareStatement("select projectname, uri, requestcount, datecreated, id, "
                         + "avgResponseTime, userCount, warmUpTime, testDuration, failedRequests, "
-                        + "testType, distribution, stepDuration, stepCount from stats.projects"
+                        + "testType, distribution, stepDuration, stepCount,method from stats.projects"
                         + " where testType != ? ")) {
             preparedStatement.setString(1, "scheduled");
             List<ProjectResponse> results = new ArrayList<>();
@@ -571,6 +573,7 @@ public class DatabaseClient {
                     String distribution = resultSet.getString(12);
                     int stepDuration = resultSet.getInt(13);
                     int stepCount = resultSet.getInt(14);
+                    String method = resultSet.getString(15);
                     ProjectResponse p = new ProjectResponse();
                     p.setProjectname(projectname);
                     p.setUri(uri);
@@ -586,6 +589,7 @@ public class DatabaseClient {
                     p.setDistribution(distribution);
                     p.setStepDuration(stepDuration);
                     p.setStepCount(stepCount);
+                    p.setMethod(method);
                     results.add(p);
                 }
             }
@@ -596,7 +600,7 @@ public class DatabaseClient {
     public List<ProjectResponse> getScheduledProjects() throws SQLException {
 
         try (PreparedStatement preparedStatement = connect
-                .prepareStatement("select id, projectname, uri, scheduleInterval, dateCreated from stats.projects where testType = ? ")) {
+                .prepareStatement("select id, projectname, uri, scheduleInterval, dateCreated, method from stats.projects where testType = ? ")) {
             preparedStatement.setString(1, "scheduled");
 
             List<ProjectResponse> scheduledProjects = new ArrayList<>();
@@ -608,6 +612,7 @@ public class DatabaseClient {
                     String uri = resultSet.getString(3);
                     long scheduleInterval = resultSet.getLong(4);
                     Date date = resultSet.getTimestamp(5);
+                    String method = resultSet.getString(6);
                     ProjectResponse p = new ProjectResponse();
                     p.setProjectid(id);
                     p.setProjectname(projectName);
@@ -615,6 +620,7 @@ public class DatabaseClient {
                     p.setScheduleInterval(scheduleInterval);
                     p.setDateCreated(date);
                     p.setTestType("scheduled");
+                    p.setMethod(method);
                     scheduledProjects.add(p);
                 }
             }
@@ -1102,5 +1108,30 @@ public class DatabaseClient {
     }
 
 
+    public GenericResult saveStat(int id, String url, long avg) throws SQLException {
+        try (PreparedStatement preparedStatement = connect
+                .prepareStatement("insert into stats.webstats (projectid, uri, responsetime, testdate ) values (?,?,?,now())")) {
+            preparedStatement.setInt(1, id);
+            preparedStatement.setString(2, url);
+            preparedStatement.setLong(3, avg);
+            int rs = preparedStatement.executeUpdate();
+            return new GenericResult(rs >1, id);
+        }
+    }
 
+    public StatusResponse getGraphData(int projectId) throws SQLException{
+        String query = "select testdate, round(avg(responsetime), 2) from stats.webstats where projectid= ? group by UNIX_TIMESTAMP(testdate), testdate;";
+        try (PreparedStatement preparedStatement = connect.prepareStatement(query)) {
+            preparedStatement.setInt(1, projectId);
+            ScrollLineGraph graph = new ScrollLineGraph();
+            graph.setCaption("Average Response Time History");
+            graph.setXaxis("Time");
+            graph.setYaxis("Response Time (ms)");
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                GraphResultSetSource iterator = new GraphResultSetSource(resultSet, "timestamp", "double");
+                graph.addSeries(iterator, "Upload Test");
+            }
+            return graph.getResult();
+        }
+    }
 }

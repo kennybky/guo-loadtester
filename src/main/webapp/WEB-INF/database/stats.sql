@@ -40,6 +40,10 @@ create table if not exists deltas (
 , FOREIGN KEY (projectid) REFERENCES projects(id) 
 );
 
+create table if not exists webstats(
+id int primary key not null auto_increment, projectid int
+    , uri varchar(1024), responsetime long, testdate timestamp);
+
 /* Stores the services obtained from a WSDL or WADL uri.
   Used for service URI building in the load tester GUI. */
 create table if not exists services (

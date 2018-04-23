@@ -13,11 +13,13 @@
          * @param uri {string} uri to test
          * @constructor Makes Project objects that can be instantiated from any controller.
          */
-        return function (name, type, options, uri) {
+        return function (name, type, options, uri, method) {
             this.name = name;
             this.type = type;
             this.options = options;
             this.uri = uri;
+            this.params = [];
+            this.method = method;
         }
     }
 })();

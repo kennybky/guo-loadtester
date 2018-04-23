@@ -6,8 +6,12 @@ import java.util.Date;
 public class ProjectResponse {
     private int projectid;
     private String projectname;
+    private String method;
     private String uri;
     private String testType;
+
+
+
     private long scheduleInterval; // used for scheduled tests
     private String distribution;
     private int warmUpTime;
@@ -22,6 +26,13 @@ public class ProjectResponse {
 
     private String status;
     private boolean inProgress = false;
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
     
     public int getMaxConcurrentUsers() {
         return maxConcurrentUsers;

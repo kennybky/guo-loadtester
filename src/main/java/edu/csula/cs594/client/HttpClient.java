@@ -52,12 +52,20 @@ public class HttpClient implements Closeable {
         return result;
     }
 
-    public Future<Long> MakeAsyncHttpPostCall(RealTimeData realTimeData) throws InterruptedException, ExecutionException, IOException, SQLException {
+    public Future<Long> makeAsyncHttpPostCall(RealTimeData realTimeData) throws InterruptedException, ExecutionException, IOException, SQLException {
         LocalAsyncHandler asyncHandler = new LocalAsyncHandler(testContext, false, realTimeData);
         Future<Long> request = asyncHttpClient.preparePost(testContext.getUri()).
                 setHeader("Content-Type","application/json").
                 setBody(testContext.getRequestBody()).execute(asyncHandler);
         return request;
+    }
+    public Long makeSyncHttpPostCall(RealTimeData realTimeData) throws InterruptedException, ExecutionException, IOException, SQLException {
+        LocalAsyncHandler asyncHandler = new LocalAsyncHandler(testContext, false, realTimeData);
+        Future<Long> request = asyncHttpClient.preparePost(testContext.getUri()).
+                setHeader("Content-Type","application/json").
+                setBody(testContext.getRequestBody()).execute(asyncHandler);
+        Long result =  request.get();
+        return result;
     }
 
     public void makeHttpCall(RealTimeData realTimeData, boolean async) throws InterruptedException, ExecutionException, IOException, SQLException {
@@ -65,6 +73,13 @@ public class HttpClient implements Closeable {
             makeAsyncHttpCall(realTimeData);
         } else {
             makeSyncHttpCall(realTimeData);
+        }
+    }
+    public void makeHttpPostCall(RealTimeData realTimeData, boolean async) throws InterruptedException, ExecutionException, IOException, SQLException {
+        if (async) {
+            makeAsyncHttpPostCall(realTimeData);
+        } else {
+            makeSyncHttpPostCall(realTimeData);
         }
     }
 

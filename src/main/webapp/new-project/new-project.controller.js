@@ -46,6 +46,18 @@
         vm.initProjectOptions = initProjectOptions;
         var timeOuts = {};
         var skipValidation = false;
+        vm.webUrl = "";;
+        vm.typeSelected = "GET";
+        vm.paramName = ""
+        vm.paramValue = "";
+        vm.webParams = [];
+        vm.addWebParam = addWebParam;
+        vm.removeWebParam = removeWebParam;
+        vm.validUrl = validUrl;
+        vm.urlValid = true;
+        vm.saveWebUrl = saveWebUrl;
+        vm.constructUrl = constructUrl;
+
 
         /**
          * Prior to this controller's scope being destroyed (e.g. navigating to a different view),
@@ -80,12 +92,12 @@
                 if (serviceRetest) {
                     if (serviceRetest.baseUri) {
                         vm.urlSelectType = 'Url Builder';
-                        vm.project = new wizardProject("default", null, null, null);
+                        vm.project = new wizardProject("default", null, null, null, "GET");
                         vm.serviceName = serviceRetest.name;
                         getMethods(vm.serviceName);
                     } else {
                         vm.urlSelectType = 'Saved Test Urls';
-                        vm.project = new wizardProject("default", null, null, serviceRetest.testUri);
+                        vm.project = new wizardProject("default", null, null, serviceRetest.testUri, "GET");
                         vm.savedUrl = serviceRetest.testUri;
                     }
                 }
@@ -93,11 +105,13 @@
             getSavedUrls();
 
             vm.project = retester.getProject();
+            console.log(vm.project)
 
             /**
              * If there's a project to retester, go to the last step in the Wizard.
              */
             if (vm.project && vm.project.options) {
+                console.log("yuh")
                 skipValidation = true;
                 $scope.$watch(
                     function () {
@@ -185,6 +199,54 @@
             });
         }
 
+        function saveWebUrl() {
+            if(vm.validUrl()) {
+                vm.urlValid = true;
+                vm.project.uri = vm.webUrl;
+                vm.project.params = vm.webParams;
+                vm.project.uri = vm.constructUrl(vm.project.uri, vm.webParams)
+            } else {
+                vm.urlValid = false;
+            }
+        }
+
+        function constructUrl(uri, params) {
+            let first = true;
+            params.forEach((param)=>{
+                if(first){
+                    first = false;
+                    uri +="?"
+                } else {
+                    uri +="&"
+                }
+                uri+= `${param.key}=${param.value}`
+            })
+
+            return uri;
+        }
+
+    function validUrl() {
+            if (vm.webUrl === null || vm.webUrl === undefined || vm.webUrl === "")
+            {return false;}
+            else return !(vm.webUrl.indexOf("localhost:") === -1 && vm.webUrl.indexOf("https://") === -1);
+    }
+
+
+
+
+        function addWebParam(name, value){
+            let param = {};
+            param.key = name;
+            param.value = value;
+            vm.webParams.push(param);
+        }
+
+        function removeWebParam(id) {
+            vm.webParams = vm.webParams.filter((obj) => {
+                return obj.key !== id
+            });
+        }
+
         /**
          * Make a call to the back end to initiate a load test. If back end
          * returns "RUNNING", then a test has been successfully intiated, and
@@ -192,6 +254,8 @@
          */
         function initTest() {
             vm.loadTestMessage = null;
+            console.log(vm.project)
+            console.log("yuh")
             vm.RTPERF = false;
             $timeout.cancel(timeOuts.initTest);
             var initTestProm = $q.defer();
@@ -199,10 +263,7 @@
             switch (vm.project.type) {
                 case 'performance':
                     tester.start(
-                        vm.project.name,
-                        vm.project.uri,
-                        vm.project.type,
-                        vm.project.options).then(function (response) {
+                        vm.project).then(function (response) {
                         initTestProm.resolve(response);
                         if (response.running) {
                             realTimePerformance.setProjectId(response.projectid);
@@ -217,10 +278,7 @@
                     break;
                 case 'capacity':
                     tester.start(
-                        vm.project.name,
-                        vm.project.uri,
-                        vm.project.type,
-                        vm.project.options).then(function (response) {
+                        vm.project).then(function (response) {
                         initTestProm.resolve(response);
                         if (response.running) {
                             pingCapacityStatus(response.uri, response.projectid);
@@ -229,10 +287,7 @@
                     break;
                 case 'scalability':
                     tester.start(
-                        vm.project.name,
-                        vm.project.uri,
-                        vm.project.type,
-                        vm.project.options).then(function (response) {
+                        vm.project).then(function (response) {
                         initTestProm.resolve(response);
                         if (response.running) {
                             pingScalabilityStatus(response.uri, response.projectid);
@@ -241,7 +296,7 @@
                     break;
                 case 'reliability':
                 case 'availability':
-                    tester.start(vm.project.name, vm.project.uri, vm.project.type, vm.project.options).then(function (response) {
+                    tester.start(vm.project).then(function (response) {
                         initTestProm.resolve(response);
                         if (response.running) {
                             statusPromises.clear();

@@ -10,11 +10,13 @@
             start: start,
             createProjectDb : createProjectDb,
             getProjectsDb: getProjectsDb,
-            save: save
+            deleteProjectDb: deleteProjectDb,
+            save: save,
+            saveStats: saveStats,
+            getGraphData : getGraphData
         };
 
         return service;
-
         /**
          * Starts a performance, capacity, or scalability test depending on the type.
          * @param projectName {string} name of the project
@@ -32,7 +34,7 @@
             obj.uri = url;
             console.log(obj)
             var uri = "v1/ws/query";
-            return $http.post(uri, JSON.stringify(obj));
+            return $http.post(uri,JSON.stringify(obj));
         }
 
         function save (project) {
@@ -40,10 +42,24 @@
             return $http.put(url,  {id: project.dbId, data: JSON.stringify(project)});
         }
 
+        function saveStats(project, avg){
+            const url = `v1/webprojects/${project.dbId}/save?url=${project.url}&avg=${avg}`
+            return $http.post(url);
+        }
+
+        function getGraphData(id){
+            const url = `v1/webprojects/${id}/graph`
+            return $http.get(url);
+        }
+
         function createProjectDb(project)  {
             const url = `v1/webprojects/add`;
             return $http
                 .post(url, {id: project.dbId, data: JSON.stringify(project)})
+        }
+
+        function deleteProjectDb(id){
+            return $http.delete(`v1/webprojects/${id}`);
         }
 
        function getProjectsDb() {
@@ -67,6 +83,10 @@
                     break;
             }
             return Math.round(interval / conversion);
+        }
+
+        function startRealTime(project){
+
         }
     }
 })();

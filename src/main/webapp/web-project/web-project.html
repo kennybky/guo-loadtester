@@ -1,4 +1,4 @@
-<div class="container">
+
     <div>
         <button class="btn btn-success mb-3" type="button" ng-click="vm.createNewProject()">
             <i class="fa fa-plus-square-o" aria-hidden="true"></i> Create New Project
@@ -24,7 +24,10 @@
             <td class="text-center">{{ project.title }}</td>
             <td class="text-center">{{ project.service}}</td>
             <td class="text-center">
-                <button class="btn btn-outline-info" data-toggle="modal" data-target="#editClientModal" ng-click="vm.editProject(project.id)">
+                <button ng-if="project.service != 'upload'" class="btn btn-outline-info" data-toggle="modal" data-target="#editClientModal" ng-click="vm.editProject(project.id)">
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                </button>
+                <button ng-if="project.service=='upload'" class="btn btn-outline-info" data-toggle="modal" data-target="#uploadModalCenter" ng-click="vm.editProject(project.id)">
                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                 </button>
                 <button class="btn btn-outline-danger" ng-click="vm.deleteProject(project.id)">
@@ -32,7 +35,7 @@
                 </button>
             </td>
             <td class="text-center">
-                <button class="btn btn-outline-info" ng-click="vm.testProject(project.id)">
+                <button class="btn btn-outline-info" ng-click="vm.loadGraph(project.id)">
                     <i class="fa fa-picture-o" aria-hidden="true"></i>
                 </button>
             </td>
@@ -51,7 +54,8 @@
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="" data-target="#tab1" data-toggle="tab">Project Details</a></li>
                             <li><a href="" data-target="#tab2" data-toggle="tab">URL Builder</a></li>
-                            <li><a href="" data-target="#tab3" data-toggle="tab">Response</a></li>
+                            <li><a href="" data-target="#tab3" data-toggle="tab">Urls</a></li>
+                            <li><a href="" data-target="#tab4" data-toggle="tab">Response</a></li>
                         </ul>
                         <div class="tab-content">
 
@@ -98,7 +102,7 @@
                             <div class="form-group row px-3">
                                 <label for="project-url" class="col-3 col-form-label"><b>Url</b> : </label>
                                 <div class="col-9">
-                            <input type="text" id="project-url" ng-model="vm.current_project.url"/>
+                            <input type="text" id="project-url" ng-model="vm.current_project.uri"/>
                             </div>
                             </div>
                             <div class="form-group row px-3">
@@ -125,18 +129,36 @@
                                 </div>
                                 </div>
                             </div>
+                            <div class="col-lg-12">
+                            <input class="col-lg-3" type="button" value="Add Url" ng-click="vm.addUrl()"/>
+                            </div>
                         </div>
                         <div class="tab-pane" id="tab3">
                             <div class="form-group row px-3">
-                               <div class="col-lg-9">Response</div>
+                               <div class="col-lg-9">URLS</div>
 
-                                <div class="col-lg-9">
-                               <div ng-bind-html="vm.currentResponseBody" class="col-lg-9">
-
-                                            </div>
-                           </div>
+                                <table id="project-urls" class="table table-hover table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center">URL</th>
+                                        <th class="text-center">Method</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="stat in vm.current_project.parameterEntries track by $index">
+                                        <td class="text-center">{{ stat.url }}</td>
+                                        <td class="text-center">{{ stat.method }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+                            <div class="tab-pane" id="tab4">
+                                <div class="form-group row px-3">
+                                    <div class="col-lg-9">Performance Graph</div>
+
+
+                            </div>
 
                         </div>
                     </div>
@@ -149,3 +171,76 @@
         </div>
     </div>
 </div>
+    <div ng-show="vm.showLoadingBall" class="ng-hide">
+        <div class="ball"></div>
+        <div class="ball1"></div>
+    </div>
+    <div class="modal fade" id="uploadModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">File size:</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select ng-model="vm.size">
+                                    <!-- <option ng-repeat="b in isaac.bits">{{b}}</option> -->
+                                    <option value="1">1</option>
+                                    <option value="5">5</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                mb(s)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" ng-click="vm.uploadTest()"  class="btn btn-primary">Run</button>
+                    <button type="button" ng-click="vm.stop()" ng-show="vm.current_project.running"  class="btn btn-primary">Stop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="chart-section">
+    <div ng-show="vm.RTPERF" class="row ng-hide">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;
+                        Real Time Performance Monitor</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-9"><div id="performance-monitor-div"></div></div>
+                        <div class="col-md-3"><div id="performance-gauge-div"></div></div>
+                    </div>
+
+                </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="col-md-8 col-md-offset-2">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;
+                Performance for {{vm.projectLoaded.title}} </h3>
+        </div>
+        <div class="panel-body">
+            <div id="chart-container"></div>
+        </div>
+    </div>
+    </div>
+    </div>
+

@@ -227,7 +227,12 @@ public class CliClient implements Runnable {
         final AtomicInteger successfulCalls = realTimeData.getSuccesses();
         final AtomicInteger failedCalls = realTimeData.getFailures();
         try {
-            client.makeHttpCall(realTimeData, async);
+            if (testContext.getMethod().equals("POST")) {
+
+                client.makeHttpPostCall(realTimeData, async);
+            } else {
+                client.makeHttpCall(realTimeData, async);
+            }
         } catch (IOException | SQLException | ExecutionException e) {
             logger.error(loadFunctionType + " load test: Couldn't make synchronous http call.", e);
         } catch (InterruptedException e) {

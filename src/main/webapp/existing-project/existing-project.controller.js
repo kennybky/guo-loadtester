@@ -249,48 +249,48 @@
          *     project selected, generate the chart.
          */
         function compare() {
-            alert("This functionality has not been implemented yet.");
-            // vm.compareProjectsResults = [];
-            // vm.chartsLoaded = false;
-            // vm.compareChartsLoaded = true;
-            // var projectsCompared = [];
-            //
-            // vm.loadProjects.forEach(function (project) {
-            //     if (project.selected) {
-            //         var projectName = project.projectname;
-            //         projectsCompared.push(projectName);
-            //         vm.compareProjectsResults.push({
-            //             projectName: project.projectname,
-            //             maxConnectionCt: project.maxConnCount,
-            //             avgRspTime: project.avgResponseTime
-            //         });
-            //     }
-            // });
-            //
-            // var projectList = projectsCompared.join(";");
-            // chartData.getCompareData(projectList).then(function (compareData) {
-            //     chartLoader.updateFusionChart(compareData, "compareProjectsChart", "msarea");
-            // });
-            //
-            // chartData.getStatsData(projectList, "avg").then(function (compareData) {
-            //     chartLoader.updateFusionChart(compareData, "avgProjectsChart", "bar2d");
-            // });
-            //
-            // chartData.getStatsData(projectList, "min").then(function (compareData) {
-            //     chartLoader.updateFusionChart(compareData, "minProjectsChart", "bar2d");
-            // });
-            //
-            // chartData.getStatsData(projectList, "max").then(function (compareData) {
-            //     chartLoader.updateFusionChart(compareData, "maxProjectsChart", "bar2d");
-            // });
-            //
-            // chartData.getStatsData(projectList, "capacity").then(function (compareData) {
-            //     chartLoader.updateFusionChart(compareData, "capacityProjectsChart", "bar2d");
-            // });
-            //
-            // chartData.getStatsData(projectList, "reliability").then(function (compareData) {
-            //     chartLoader.updateFusionChart(compareData, "reliabilityProjectsChart", "bar2d");
-            // });
+            //alert("This functionality has not been implemented yet.");
+             vm.compareProjectsResults = [];
+             vm.chartsLoaded = false;
+             vm.compareChartsLoaded = true;
+             var projectsCompared = [];
+
+             vm.loadProjects.forEach(function (project) {
+                 if (project.selected) {
+                     var projectName = project.projectname;
+                     projectsCompared.push(projectName);
+                     vm.compareProjectsResults.push({
+                         projectName: project.projectname,
+                         maxConnectionCt: project.maxConnCount,
+                         avgRspTime: project.avgResponseTime
+                     });
+                 }
+             });
+
+             var projectList = projectsCompared.join(";");
+             chartData.getCompareData(projectList).then(function (compareData) {
+                 chartLoader.updateFusionChart(compareData, "compareProjectsChart", "msarea");
+             });
+
+             chartData.getStatsData(projectList, "avg").then(function (compareData) {
+                 chartLoader.updateFusionChart(compareData, "avgProjectsChart", "bar2d");
+             });
+
+             chartData.getStatsData(projectList, "min").then(function (compareData) {
+                 chartLoader.updateFusionChart(compareData, "minProjectsChart", "bar2d");
+             });
+
+             chartData.getStatsData(projectList, "max").then(function (compareData) {
+                 chartLoader.updateFusionChart(compareData, "maxProjectsChart", "bar2d");
+             });
+
+             chartData.getStatsData(projectList, "capacity").then(function (compareData) {
+                 chartLoader.updateFusionChart(compareData, "capacityProjectsChart", "bar2d");
+             });
+
+             chartData.getStatsData(projectList, "reliability").then(function (compareData) {
+                 chartLoader.updateFusionChart(compareData, "reliabilityProjectsChart", "bar2d");
+             });
             
         }
 
@@ -327,7 +327,8 @@
                             interval: projectData.msToSec(selected.scheduleInterval)
                         };
                     }
-                    var project = new wizardProject(selected.projectname, selected.testType, options, selected.uri);
+                    var project = new wizardProject(selected.projectname, selected.testType, options, selected.uri, selected.method);
+
                     retester.setProject(project);
                     $location.path('#/new-project');
                 }

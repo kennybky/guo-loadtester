@@ -19,18 +19,21 @@
 
         /**
          * Starts a performance, capacity, or scalability test depending on the type.
-         * @param projectName {string} name of the project
-         * @param url {string} url of the service to test
-         * @param type {string} capacity or scalability.
-         * @param options {object} json object representing key:value pairs needed for
+         * @param project {object} whole project object
+         * @projectName {string} name of the project
+         * @url {string} url of the service to test
+         * @type {string} capacity or scalability.
+         * @options {object} json object representing key:value pairs needed for
          *                 either type of test
          * @returns {*} This method returns a promise. Fulfilled when http request is received.
          */
-        function start(projectName, url, type, options) {
+        function start(project) {
+            let projectName = project.name, url = project.uri, type = project.type, options = project.options;
             var encodedUrl = encodeURIComponent(url);
 
             if (type === 'performance') {
-                var uri = "v1/test/startPerformanceTest?uri=" + encodedUrl + "&projectName=" + projectName;
+                var uri = "v1/test/startPerformanceTest?uri=" + encodedUrl
+                    + "&projectName=" + projectName + "&method=" + project.method;
                 return $http.get(uri).then(function (response) {
                     return response.data; //response.data is the json returned, response.status is the statuscode
                 });
@@ -41,7 +44,8 @@
                 var uri = "v1/test/startCapacityTest?uri=" + encodedUrl + "&projectname=" + projectName
                     + "&userCount=" + options.userCount + "&warmUpTime="
                     + options.warmUpTime + "&testTime=" + options.testTime + "&stepDuration=" + options.stepDuration
-                    + "&stepCount=" + options.stepCount + "&failuresPermitted=" + options.failuresPermitted;
+                    + "&stepCount=" + options.stepCount + "&failuresPermitted="
+                    + options.failuresPermitted+ "&method=" + project.method;
                 return $http.get(uri).then(function (response) {
                     return response.data;
                 });
@@ -51,7 +55,8 @@
                 var uri = "v1/test/startScalabilityTest?uri=" + encodedUrl + "&projectname=" + projectName
                     + "&distribution=" + options.distribution + "&userCount=" + options.userCount + "&warmUpTime="
                     + options.warmUpTime + "&testTime=" + options.testTime + "&stepDuration=" + options.stepDuration
-                    + "&stepCount=" + options.stepCount + "&failuresPermitted=" + options.failuresPermitted;
+                    + "&stepCount=" + options.stepCount + "&failuresPermitted="
+                    + options.failuresPermitted+ "&method=" + project.method;
                 return $http.get(uri).then(function (response) {
                     return response.data;
                 });
@@ -61,7 +66,7 @@
                 var interval = intervalToMs(options.interval, options.timeUnits);
                 console.log("Ms interval: " + interval);
                 return $http.get('v1/test/startScheduledTest?projectName=' + projectName + '&uri=' + encodedUrl
-                    + '&interval=' + interval + '&timeout=' + options.timeout).then(function (response) {
+                    + '&interval=' + interval + '&timeout=' + options.timeout+ "&method=" + project.method).then(function (response) {
                     return response.data;
                 });
             }

@@ -75,6 +75,10 @@ public class TestContext {
     private boolean retest = false;
     private Map<String, String> params;
 
+
+
+    private String method;
+
     public TestContext(int projectId, String uri, Type testType, DatabaseClient dbClient, ExecutorService consumers) {
         this.projectId = projectId;
         this.uri = uri;
@@ -101,7 +105,13 @@ public class TestContext {
         logger.info("Submitting the consumer to the consumer thread pool.");
         consumers.execute(consumer);
     }
+    public String getMethod() {
+        return method;
+    }
 
+    public void setMethod(String method) {
+        this.method = method;
+    }
     public BlockingQueue<QueueItem> getQueue() {
         return queue;
     }

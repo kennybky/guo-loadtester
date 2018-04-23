@@ -43,7 +43,7 @@
                                 <select class="form-control"
                                         ng-model="vm.urlSelectType"
                                         ng-change="vm.resetConfiguredUrl()"
-                                        ng-options="type for type in ['Url Builder', 'Saved Test Urls']"></select>
+                                        ng-options="type for type in ['Url Builder', 'Saved Test Urls', 'Create Your Own URL']"></select>
                             </div>
                         </div>
                         <form ng-show="vm.urlSelectType === 'Url Builder'" class="ng-hide" action="#">
@@ -67,7 +67,7 @@
                                        for="methodsDiv">Methods for {{vm.baseUrl}}</label>
                                 <div id="methodsDiv" class="input-group">
                                     <div class="input-group-addon">
-                                        Select a method
+                                        Select a function
                                     </div>
                                     <select id="txtMethod" class="form-control"
                                             ng-model="methodSelected"
@@ -77,6 +77,17 @@
                             </div>
 
                             <!------------------------ End Methods Textbox --------------------->
+                            <div  class="form-group">
+
+                                <div id="typesDiv1" class="input-group">
+                                    <div class="input-group-addon">
+                                        Select a method
+                                    </div>
+                                    <select id="txtType1" class="form-control"
+                                            ng-model="vm.project.method"
+                                            ng-options="type for type in ['GET', 'POST', 'PUT']"></select>
+                                </div>
+                            </div>
 
                             <div ng-show="methodSelected" class="ng-hide">
                                 <!------------------------ Parameters Textbox ------------------------------>
@@ -109,7 +120,112 @@
                                         ng-options="savedUrl for savedUrl in vm.savedUrls"
                                         ng-change="vm.project.uri = vm.savedUrl"></select>
                             </div>
+                            <div  class="form-group">
+
+                                <div id="typesDiv2" class="input-group">
+                                    <div class="input-group-addon">
+                                        Select a method
+                                    </div>
+                                    <select id="txtType2" class="form-control"
+                                            ng-model="vm.project.method"
+                                            ng-options="type for type in ['GET', 'POST', 'PUT']"></select>
+                                </div>
+                            </div>
                         </div>
+                        <form ng-show="vm.urlSelectType === 'Create Your Own URL'" class="ng-hide" action="#">
+                            <div class="form-group">
+                                <div class="input-group">
+
+                                    <!-------------------------- Services Textbox ------------------>
+                                    <div class="input-group-addon">
+                                        Input your URL
+                                    </div>
+                                    <input name="url" class="form-control" ng-model="vm.webUrl" type="text"
+                                             placeholder="For Web URLS make  sure you start with 'https'"/>
+                                </div>
+                            </div>
+
+                            <!-------------------------- Methods Textbox ------------------>
+                            <div  class="form-group">
+
+                                <div id="typesDiv" class="input-group">
+                                    <div class="input-group-addon">
+                                        Select a method
+                                    </div>
+                                    <select id="txtType" class="form-control"
+                                            ng-model="vm.project.method"
+                                            ng-options="type for type in ['GET', 'POST', 'PUT']"></select>
+                                </div>
+                            </div>
+
+                            <!------------------------ End Methods Textbox --------------------->
+
+                            <div ng-show="vm.project.method" class="ng-hide">
+                                <!------------------------ Parameters Textbox ------------------------------>
+                                <div class="form-group">
+
+                                    <div>
+                                        <div id="webParam" class="input-group">
+                                            <div class="input-group-addon">
+                                                Name
+                                            </div>
+                                            <input name="param" class="form-control" ng-model="vm.paramName"
+                                                   type="text"
+                                            />
+                                            <div class="input-group-addon">
+                                                Value
+                                            </div>
+                                            <input name="param" class="form-control" ng-model="vm.paramValue"
+                                                    type="text"
+                                            />
+                                            <span class="input-group-btn">
+                                        <button ng-click="vm.addWebParam(vm.paramName, vm.paramValue)" class="btn btn-primary"
+                                                type="button">
+                                            Add
+                                        </button>
+                                    </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!------------------------ Parameters List Textbox ------------------------------>
+                                <div class="form-group">
+                                    <label id="webParamsDivLabel" class="control-label"
+                                           for="paramsDiv">Parameters for {{vm.webUrl}} </label>
+                                    <div ng-repeat="param in vm.webParams track by $index">
+                                        <div id="webParamsDiv" class="input-group">
+                                            <div class="input-group-addon">
+                                                Name
+                                            </div>
+                                            <input name="param" class="form-control" readonly ng-model="param.key"
+                                                   type="text"
+                                            />
+                                            <div class="input-group-addon">
+                                                Value
+                                            </div>
+                                            <input name="param" class="form-control" readonly ng-model="param.value"
+                                                   type="text"
+                                            />
+                                            <span class="input-group-btn">
+                                        <button ng-click="vm.removeWebParam(param.key)" class="btn btn-primary"
+                                                type="button">
+                                            Remove
+                                        </button>
+                                    </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-------------------------- End Parameters Textbox ------------------------->
+                            <div class="form-group">
+                                <p class="error" ng-show="!vm.urlValid"> Invalid Url </p>
+                            <span class="input-group-btn">
+                                        <button ng-click="vm.saveWebUrl()"  class="btn btn-primary"
+                                                type="button">
+                                            Save URL
+                                        </button>
+                                    </span>
+                            </div>
+                        </form>
                         <form name="serviceForm">
                             <div class="form-group">
                                 <div class="input-group">
