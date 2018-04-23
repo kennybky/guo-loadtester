@@ -413,7 +413,7 @@ public class TestResource {
         logger.info("Returning stats graph data for projects: " + Arrays.toString(projectNames));
 
         StatusResponse r = dbClient.getStatsGraph(projectNames, type);
-        r.setUri("http://localhost:8080/loadtest/stats");
+        r.setUri("http://localhost:8080/loadtester/v1/stats");
         r.setRequestType("stats");
 
         return Response.ok().entity(r).build();

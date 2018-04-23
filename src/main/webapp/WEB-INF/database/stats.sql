@@ -6,6 +6,7 @@ use stats;
 drop table if exists deltas;
 drop table if exists projects;
 drop table if exists services;
+drop table if exists webstats;
 
 create table if not exists projects (
 	id int primary key not null auto_increment
