@@ -5,11 +5,8 @@ import edu.csula.cs594.client.DataConsumer;
 import edu.csula.cs594.client.DatabaseClient;
 import edu.csula.cs594.client.TestContext;
 import edu.csula.cs594.client.TestContext.Type;
-import edu.csula.cs594.client.dao.RealTimeData;
+import edu.csula.cs594.client.dao.*;
 import edu.csula.cs594.client.graph.dao.AngularChart;
-import edu.csula.cs594.client.dao.ChartResponse;
-import edu.csula.cs594.client.dao.StatusResponse;
-import edu.csula.cs594.client.dao.ValidationResponse;
 import edu.csula.cs594.client.loadfunctions.LoadFactory;
 
 import java.io.IOException;
@@ -209,6 +206,11 @@ public class TestResource {
     public Response stopTest(@QueryParam("projectId") int projectId) throws InterruptedException {
         StatusResponse r = new StatusResponse();
         CliClient client = cliClientMap.get(projectId);
+        try {
+            dbClient.recordProjectSummary(client.getTestContext());
+        } catch(SQLException e){
+            e.printStackTrace();
+        }
         if (client != null) {
             testContextMap.remove(projectId);
             client.shutdown();
@@ -277,11 +279,17 @@ public class TestResource {
             if (testContext.getRunning().get()) {
             	double performance = testContext.getRealTimeDatas().get(0).getPerformance();
             	if (testContext.getCummulativeData()!=null){
-            		double past  = testContext.getCummulativeData().getPerformance();
-            		double avg = (performance + past)/2;
+            	    RealTimeData now = testContext.getRealTimeDatas().get(0);
+                    CummulativeData then = testContext.getCummulativeData();
+            	    double totalCalls = now.getSuccesses().get() + now.getFailures().get() + then.getCalls();
+            	    double present = now.getCumRspTimes().get();
+            		double past  = testContext.getCummulativeData().getCumRspTimes();
+            		double avg = (present + past)/totalCalls;
             		statusResponse.setCumAvgResponseTime(avg);
+            		testContext.setAvgResponse(avg);
             	} else {
             		statusResponse.setCumAvgResponseTime(-1);
+            		testContext.setAvgResponse(performance);
             	}
             	
             	

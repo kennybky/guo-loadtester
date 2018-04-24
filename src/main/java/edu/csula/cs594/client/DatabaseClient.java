@@ -129,6 +129,25 @@ public class DatabaseClient {
         }
     }
 
+    public void recordProjectSummary(TestContext context) throws SQLException{
+        try (PreparedStatement preparedStatement = connect.prepareStatement("update stats.projects set requestCount = ? , avgResponseTime = ? ," +
+                " failedRequests = ? where id = ?")){
+            int requestCount = context.getConsumed().get() + context.getFailedCalls().get();
+            int failedCalls = context.getFailedCalls().get();
+            CummulativeData past = context.getCummulativeData();
+            if (past !=null){
+                requestCount += past.getCalls();
+                failedCalls += past.getFailedCalls();
+            }
+            preparedStatement.setInt(1, requestCount);
+
+            preparedStatement.setInt(2, (int)(context.getAvgResponse()));
+            preparedStatement.setInt(3, failedCalls);
+            preparedStatement.setInt(4,context.getProjectId());
+            preparedStatement.executeUpdate();
+        }
+    }
+
     public int createScheduledRun(String projectName, String uri, String testType, long scheduleInterval) throws SQLException {
         int generatedKey = 0;
         try (PreparedStatement preparedStatement = connect.prepareStatement("insert into stats.projects (id, "
@@ -906,14 +925,15 @@ public class DatabaseClient {
     }
     
     public int[] getPerformanceDelta(int projectId) throws SQLException {
-    	String query = "select count(*), sum(roundTripTime) from deltas where projectid = ?";
-    	int[] result = new int[2];
+    	String query = "select requestCount, avgResponseTime, failedRequests from projects where id = ?";
+    	int[] result = new int[3];
     	  try (PreparedStatement preparedStatement = connect.prepareStatement(query)) {
               preparedStatement.setInt(1, projectId);
               try (ResultSet resultSet = preparedStatement.executeQuery()) {
             	 if(resultSet.next()){
             	 result[0] =  resultSet.getInt(1);
             	 result[1] =  resultSet.getInt(2);
+            	 result[2] = resultSet.getInt(3);
             	 return result;
             	 } else {
             		 return null;

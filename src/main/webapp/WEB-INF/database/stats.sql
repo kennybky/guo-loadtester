@@ -6,6 +6,7 @@ use stats;
 drop table if exists deltas;
 drop table if exists projects;
 drop table if exists services;
+drop table if exists webprojects;
 drop table if exists webstats;
 
 create table if not exists projects (
@@ -24,6 +25,7 @@ create table if not exists projects (
     , userCount int
     , failedRequests int
     , dateCreated timestamp not null default current_timestamp
+    , method varchar(20) default 'GET'
 );
 
 create table if not exists deltas ( 
@@ -38,12 +40,20 @@ create table if not exists deltas (
     , INDEX(uri)
  , INDEX(projectid)
     , INDEX(dateCreated)
-, FOREIGN KEY (projectid) REFERENCES projects(id) 
+, FOREIGN KEY (projectid) REFERENCES projects(id) on delete cascade
 );
+
+
+CREATE TABLE  if not exists webprojects(
+  id int(11) primary key NOT NULL AUTO_INCREMENT,
+  data longtext
+);
+
 
 create table if not exists webstats(
 id int primary key not null auto_increment, projectid int
-    , uri varchar(1024), responsetime long, testdate timestamp);
+    , uri varchar(1024), responsetime long, testdate timestamp,
+FOREIGN KEY (projectid) REFERENCES webprojects(id) on delete cascade);
 
 /* Stores the services obtained from a WSDL or WADL uri.
   Used for service URI building in the load tester GUI. */

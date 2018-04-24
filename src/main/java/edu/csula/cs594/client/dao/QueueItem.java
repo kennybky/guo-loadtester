@@ -10,6 +10,15 @@ public class QueueItem {
     private int statusCode;
     private long relativeTimeBucket;
     private int requests;
+    private  int avgResponseTime;
+
+    public int getAvgResponseTime() {
+        return avgResponseTime;
+    }
+
+    public void setAvgResponseTime(int avgResponseTime) {
+        this.avgResponseTime = avgResponseTime;
+    }
 
     public String getUri() {
         return uri;

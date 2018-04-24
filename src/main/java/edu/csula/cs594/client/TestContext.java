@@ -70,10 +70,20 @@ public class TestContext {
     private int requests = 0;
     private final AtomicInteger consumed = new AtomicInteger(0);
     private final AtomicInteger failedCalls = new AtomicInteger(0);
+
+    public double getAvgResponse() {
+        return avgResponse;
+    }
+
+    public void setAvgResponse(double avgResponse) {
+        this.avgResponse = avgResponse;
+    }
+
     private final AtomicBoolean running;
     private String finishMessage;
     private boolean retest = false;
     private Map<String, String> params;
+    private double avgResponse;
 
 
 
