@@ -150,7 +150,7 @@ public class CliClient implements Runnable {
             logger.info("0 failures...Making " + requests + " requests until failure at time " + relativeTimeBucket + " ms.");
 
             RealTimeData realTimeData = initRTD(relativeTimeBucket, requests);
-            
+            //testContext.startConsumer();
             // loop making sync requests and shutdown if any requests fail:
             makeFiniteRequests(client, testContext, realTimeData, false, true);
             sleepAndShutdownIfInterrupted(testContext.getStepDuration());

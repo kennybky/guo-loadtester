@@ -141,7 +141,7 @@ public class DatabaseClient {
             }
             preparedStatement.setInt(1, requestCount);
 
-            preparedStatement.setInt(2, (int)(context.getAvgResponse()));
+            preparedStatement.setDouble(2, (context.getAvgResponse()));
             preparedStatement.setInt(3, failedCalls);
             preparedStatement.setInt(4,context.getProjectId());
             preparedStatement.executeUpdate();

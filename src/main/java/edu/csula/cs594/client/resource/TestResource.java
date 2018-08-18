@@ -283,7 +283,7 @@ public class TestResource {
                     CummulativeData then = testContext.getCummulativeData();
             	    double totalCalls = now.getSuccesses().get() + now.getFailures().get() + then.getCalls();
             	    double present = now.getCumRspTimes().get();
-            		double past  = testContext.getCummulativeData().getCumRspTimes();
+            		double past  = then.getCumRspTimes();
             		double avg = (present + past)/totalCalls;
             		statusResponse.setCumAvgResponseTime(avg);
             		testContext.setAvgResponse(avg);

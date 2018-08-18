@@ -46,7 +46,7 @@
         vm.initProjectOptions = initProjectOptions;
         var timeOuts = {};
         var skipValidation = false;
-        vm.webUrl = "";;
+        vm.webUrl = "";
         vm.typeSelected = "GET";
         vm.paramName = ""
         vm.paramValue = "";
